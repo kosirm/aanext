@@ -1,0 +1,401 @@
+#!/bin/bash
+
+# AA Hrvatska PDF Generator - Work Script
+# Simplified workflow management for PDF book generation project
+
+# Function to check if we're in a git repository
+check_git_repo() {
+    if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        echo "Error: Not in a git repository"
+        exit 1
+    fi
+}
+
+# Function to clean up branches
+cleanup_branches() {
+    echo "Cleaning up merged branches..."
+
+    # Switch to main branch
+    git checkout main
+    git pull origin main
+
+    # Delete local branches that have been merged into main
+    git branch --merged main | grep -v '^\*\|main\|master\|dev' | xargs -r git branch -d
+
+    # Delete remote branches that have been merged
+    git remote prune origin
+
+    echo "✓ Branches cleaned up"
+}
+
+# Function to run website update script
+run_update() {
+    local commit_message="$1"
+    local nogit="$2"
+    
+    if [ "$nogit" = "nogit" ]; then
+        echo "Running update script without git operations..."
+        bash update_new.sh nogit
+    elif [ -n "$commit_message" ]; then
+        echo "Running update script with custom commit message: $commit_message"
+        bash update_new.sh "$commit_message"
+    else
+        echo "Running update script with default commit message..."
+        bash update_new.sh
+    fi
+}
+
+# Function to test fonts with Croatian characters
+test_fonts() {
+    local font_source="$1"
+    local chapter_font="$2"
+    local text_font="$3"
+    
+    if [ -z "$font_source" ] || [ -z "$chapter_font" ] || [ -z "$text_font" ]; then
+        echo "Usage: w test <system|google> <chapter-font> <text-font>"
+        echo "Examples:"
+        echo '  w test system "Times New Roman" "Arial"'
+        echo '  w test google "Playfair Display" "Open Sans"'
+        exit 1
+    fi
+    
+    echo "Testing fonts: $chapter_font + $text_font ($font_source)"
+    cd pdf_creator/source
+    python test_fonts.py "$font_source" "$chapter_font" "$text_font"
+    cd ../..
+}
+
+# Function to generate PDFs with configuration-based fonts
+generate_pdfs() {
+    local font_source="$1"
+    local config_name="$2"
+
+    # Support both old and new syntax
+    if [ -n "$3" ]; then
+        # Old syntax: w pdf <font_source> <chapter_font> <text_font>
+        local chapter_font="$2"
+        local text_font="$3"
+        echo "⚠️  WARNING: Old font syntax detected. Consider using new config-based syntax:"
+        echo "   New: w pdf $font_source config_name"
+        echo "   Old: w pdf $font_source \"$chapter_font\" \"$text_font\""
+        echo ""
+        echo "Generating all PDFs with fonts: $chapter_font + $text_font ($font_source)"
+        cd pdf_creator/source
+        python main.py --books-dir ../../assets/books --output-dir ../pdf --all --fonts "$font_source" "$chapter_font" "$text_font" --verbose
+        cd ../..
+    else
+        # New syntax: w pdf <font_source> <config_name>
+        if [ -z "$font_source" ] || [ -z "$config_name" ]; then
+            echo "Usage: w pdf <system|google> <config-name>"
+            echo "Examples:"
+            echo '  w pdf google pdf_config        - Use pdf_config.json with Google fonts'
+            echo '  w pdf system config1           - Use config1.json with system fonts'
+            echo '  w pdf google config_custom     - Use config_custom.json with Google fonts'
+            echo ""
+            echo "Legacy syntax (still supported):"
+            echo '  w pdf system "Times New Roman" "Arial"'
+            echo '  w pdf google "Playfair Display" "Open Sans"'
+            exit 1
+        fi
+
+        echo "Generating all PDFs using config: $config_name.json ($font_source fonts)"
+        cd pdf_creator/source
+        python main.py "$font_source" "$config_name" --books-dir ../../assets/books --output-dir ../pdf --all
+        cd ../..
+    fi
+
+    echo "✓ All PDFs generated successfully!"
+    echo "Check pdf_creator/pdf/ directory for the generated files."
+}
+
+# Creates a new branch and pushes it to remote
+create_task_branch() {
+    local branch_name=$1
+
+    # Check if we're on main branch
+    if [ "$(git branch --show-current)" != "main" ]; then
+        echo "Error: Must be on main branch to start a new task"
+        exit 1
+    fi
+
+    # Check for uncommitted changes
+    if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo "Error: You have uncommitted changes in main branch"
+        echo "Please commit or stash your changes before starting a new task"
+        echo "Tip: Use 'w push' to quickly commit changes to main"
+        exit 1
+    fi
+
+    # Pull latest changes
+    git pull origin main
+
+    # Create and checkout new branch
+    git checkout -b "$branch_name"
+
+    # Push to remote and set upstream
+    git push -u origin "$branch_name"
+
+    echo "✓ Created and switched to branch: $branch_name"
+}
+
+# Finishes a task by merging it into main and running update script
+finish_task_and_update() {
+    local message=$1
+    local current_branch=$(git branch --show-current)
+
+    # Don't allow finishing from main
+    if [ "$current_branch" = "main" ]; then
+        echo "Error: Already on main branch"
+        exit 1
+    fi
+
+    # Check if there are any changes to commit
+    if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo "Committing pending changes..."
+        git add .
+        git commit -m "$message"
+    fi
+
+    # Push current branch
+    git push origin "$current_branch"
+
+    # Switch to main and pull
+    git checkout main
+    git pull origin main
+
+    # Merge the task branch
+    git merge "$current_branch" --no-ff -m "$message"
+
+    # Instead of pushing main, run update script
+    echo "Running update script with message: $message"
+    bash update.sh "$message"
+
+    # Keep the task branch
+    echo "✓ Task completed, merged to main, and update script executed"
+    echo "✓ Branch '$current_branch' preserved for future reference"
+    echo "💡 You can delete it later with: git branch -d $current_branch"
+}
+
+
+# Finishes a task by merging it into main
+finish_task() {
+    local message=$1
+    local current_branch=$(git branch --show-current)
+
+    # Don't allow finishing from main
+    if [ "$current_branch" = "main" ]; then
+        echo "Error: Already on main branch"
+        exit 1
+    fi
+
+    # Check if there are any changes to commit
+    if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        echo "Committing pending changes..."
+        git add .
+        git commit -m "$message"
+    fi
+
+    # Push current branch
+    git push origin "$current_branch"
+
+    # Switch to main and pull
+    git checkout main
+    git pull origin main
+
+    # Merge the task branch
+    git merge "$current_branch" --no-ff -m "$message"
+
+    # Push main
+    git push origin main
+
+    # Keep the task branch (don't delete it)
+    echo "✓ Task completed and merged to main"
+    echo "✓ Branch '$current_branch' preserved for future reference"
+    echo "💡 You can delete it later with: git branch -d $current_branch"
+}
+
+# Function to abandon current task
+abandon_task() {
+    local new_branch=$1
+    local current_branch=$(git branch --show-current)
+
+    # Don't allow abandoning main
+    if [ "$current_branch" = "main" ]; then
+        echo "Error: Already on main branch"
+        exit 1
+    fi
+
+    # Switch to main and force reset working directory
+    echo "Switching to main branch and resetting changes..."
+    git checkout main
+    git pull origin main
+
+    # Reset any modified files to match main branch
+    git reset --hard origin/main
+
+    # Clean untracked files and directories
+    git clean -fd
+
+    # Delete the old branch
+    echo "Deleting branch $current_branch..."
+    git branch -D "$current_branch"
+    git push origin --delete "$current_branch" 2>/dev/null || true
+
+    # If a new branch name was provided, create it
+    if [ -n "$new_branch" ]; then
+        create_task_branch "$new_branch"
+    fi
+
+    echo "✓ Task abandoned and working directory reset to main"
+}
+
+# Function to run Quasar development server
+run_quasar_dev() {
+    local mode="$1"
+
+    case "$mode" in
+    "-d"|"--development")
+        echo "Starting Quasar dev server WITHOUT service worker..."
+        QUASAR_DEV_MODE=true quasar dev
+        ;;
+    "-ds"|"--development-sw")
+        echo "Starting Quasar dev server WITH service worker..."
+        QUASAR_DEV_MODE=false quasar dev
+        ;;
+    "build")
+        echo "Building Quasar app for production..."
+        quasar build
+        ;;
+    "build-pwa")
+        echo "Building Quasar PWA..."
+        quasar build -m pwa
+        ;;
+    "build-electron")
+        echo "Building Quasar Electron app..."
+        quasar build -m electron
+        ;;
+    *)
+        echo "Starting Quasar dev server WITHOUT service worker (default)..."
+        QUASAR_DEV_MODE=true quasar dev
+        ;;
+    esac
+}
+
+# Main script
+check_git_repo
+
+case "$1" in
+"start")
+    if [ -z "$2" ]; then
+        echo "Usage: w start <branch-name>"
+        exit 1
+    fi
+    create_task_branch "$2"
+    ;;
+"finish")
+    if [ -z "$2" ]; then
+        echo "Usage: w finish \"commit message\""
+        exit 1
+    fi
+    finish_task "$2"
+    ;;
+"finish-update")
+    if [ -z "$2" ]; then
+        echo "Usage: w finish-update \"commit message\""
+        exit 1
+    fi
+    finish_task_and_update "$2"
+    ;;
+"abandon")
+    if [ -z "$2" ]; then
+        abandon_task
+    else
+        abandon_task "$2"
+    fi
+    ;;
+"cleanup")
+    cleanup_branches
+    ;;
+"push")
+    if [ "$2" = "nogit" ]; then
+        run_update "" "nogit"
+    elif [ -n "$2" ]; then
+        run_update "$2"
+    else
+        run_update "update"
+    fi
+    ;;
+"test")
+    test_fonts "$2" "$3" "$4"
+    ;;
+"pdf")
+    if [ "$2" = "ui" ]; then
+        echo "Starting PDF Configuration UI..."
+        cd pdf_creator/source/UI
+        python pdf_config_ui.py
+        cd ../../..
+    else
+        generate_pdfs "$2" "$3" "$4"
+    fi
+    ;;
+"q"|"quasar")
+    run_quasar_dev "$2"
+    ;;
+*)
+    echo "AA Hrvatska - Work Script"
+    echo "========================="
+    echo ""
+    echo "Usage: w <command> [arguments]"
+    echo ""
+    echo "Quasar Development Commands:"
+    echo "  q, quasar                     - Start dev server WITHOUT service worker (default)"
+    echo "  q -d, quasar --development    - Start dev server WITHOUT service worker (explicit)"
+    echo "  q -ds, quasar --development-sw - Start dev server WITH service worker"
+    echo "  q build                       - Build production app"
+    echo "  q build-pwa                   - Build PWA"
+    echo "  q build-electron              - Build Electron app"
+    echo ""
+    echo "Git Workflow Commands:"
+    echo "  start <branch-name>           - Start a new task branch"
+    echo "  finish \"message\"              - Complete current task and merge to main"
+    echo "  finish-update \"message\"       - Complete task, merge to main, and run update"
+    echo "  abandon [new-branch]          - Abandon current task, optionally start new branch"
+    echo "  cleanup                       - Clean up merged branches"
+    echo ""
+    echo "Website Update Commands:"
+    echo "  push \"message\"                - Commit and push with custom message"
+    echo "  push                          - Commit and push with default message 'update'"
+    echo "  push nogit                    - Run update script without git operations"
+    echo ""
+    echo "PDF Generation Commands:"
+    echo "  test <system|google> <font1> <font2>  - Test fonts with Croatian characters"
+    echo "  pdf ui                                - Open PDF Configuration UI"
+    echo "  pdf <system|google> <config-name>     - Generate all PDFs using config file"
+    echo "  pdf <system|google> <font1> <font2>   - Generate all PDFs with custom fonts (legacy)"
+    echo ""
+    echo "Examples:"
+    echo "  w q                           - Start dev server (no service worker)"
+    echo "  w q -ds                       - Start dev server with service worker"
+    echo "  w q build                     - Build production app"
+    echo "  w q build-pwa                 - Build PWA"
+    echo ""
+    echo "  w start pdf-font-system       - Start new task for PDF font work"
+    echo "  w finish \"Added font support\" - Complete task and merge to main"
+    echo "  w finish-update \"Help system done\" - Complete task, merge to main and run update"
+    echo "  w abandon                     - Abandon current task"
+    echo "  w abandon new-feature         - Abandon and start new task"
+    echo "  w cleanup                     - Delete all merged branches"
+    echo ""
+    echo "  w push \"Updated content\"      - Update website with custom commit message"
+    echo "  w push                        - Update website with default message"
+    echo "  w push nogit                  - Test website update without git operations"
+    echo ""
+    echo '  w test system "Times New Roman" "Arial"        - Test system fonts'
+    echo '  w test google "Playfair Display" "Open Sans"   - Test Google fonts'
+    echo '  w pdf ui                                       - Open PDF Configuration UI'
+    echo '  w pdf google pdf_config                        - Generate PDFs using pdf_config.json'
+    echo '  w pdf system config1                           - Generate PDFs using config1.json'
+    echo ""
+    exit 1
+    ;;
+esac
