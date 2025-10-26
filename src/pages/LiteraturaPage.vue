@@ -54,17 +54,23 @@
 
         <!-- Daily Text Display -->
         <div v-if="currentDailyEntry" class="daily-entry">
-          <h3>{{ currentDailyEntry.title }}</h3>
           <p class="entry-date">{{ currentDailyEntry.date }}</p>
+          <h3 class="entry-title">{{ currentDailyEntry.title }}</h3>
           <p v-if="currentDailyEntry.header" class="entry-header">
             {{ currentDailyEntry.header }}
           </p>
-          <div class="entry-content">
-            {{ currentDailyEntry.text }}
-          </div>
           <p v-if="currentDailyEntry.source" class="entry-source">
-            <strong>Izvor:</strong> {{ currentDailyEntry.source }}
+            {{ currentDailyEntry.source }}
           </p>
+          <div class="entry-content">
+            <p
+              v-for="(line, index) in currentDailyEntry.text.split('\n\n')"
+              :key="index"
+              class="content-text"
+            >
+              {{ line }}
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -156,19 +162,38 @@
 
         <!-- Reader Content -->
         <div v-if="booksStore.currentChapter" class="reader-content">
-          <h3>{{ booksStore.currentChapter.chapterTitle }}</h3>
+          <h3 class="entry-title">{{ booksStore.currentChapter.chapterTitle }}</h3>
           <p v-if="booksStore.currentChapter.chapterDateString" class="entry-date">
             {{ booksStore.currentChapter.chapterDateString }}
           </p>
           <p v-if="booksStore.currentChapter.chapterHeader" class="entry-header">
             {{ booksStore.currentChapter.chapterHeader }}
           </p>
-          <div class="entry-text">
-            {{ booksStore.currentChapter.content?.map((c) => c.value).join('\n\n') }}
-          </div>
           <p v-if="booksStore.currentChapter.chapterSource" class="entry-source">
-            <strong>Izvor:</strong> {{ booksStore.currentChapter.chapterSource }}
+            {{ booksStore.currentChapter.chapterSource }}
           </p>
+          <div class="entry-content">
+            <template v-for="(item, index) in booksStore.currentChapter.content" :key="index">
+              <p v-if="item.type === 'text'" class="content-text">
+                {{ item.value }}
+              </p>
+              <p v-else-if="item.type === 'subtitle'" class="content-subtitle">
+                {{ item.value }}
+              </p>
+              <p v-else-if="item.type === 'subtitleBold'" class="content-subtitle-bold">
+                {{ item.value }}
+              </p>
+              <div v-else-if="item.type === 'letter'" class="content-letter">
+                {{ item.value }}
+              </div>
+              <div v-else-if="item.type === 'table'" class="content-table">
+                {{ item.value }}
+              </div>
+              <p v-else class="content-text">
+                {{ item.value }}
+              </p>
+            </template>
+          </div>
         </div>
 
         <!-- Navigation Buttons -->
@@ -554,6 +579,125 @@ h2 {
     color: var(--text-secondary);
     font-size: var(--font-size-sm);
     margin: 0;
+  }
+}
+
+// Content Type Styles
+.content-text {
+  margin: var(--spacing-md) 0;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.content-subtitle {
+  margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.content-subtitle-bold {
+  margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.content-letter {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-left: 4px solid var(--color-primary);
+  font-style: italic;
+  line-height: 1.8;
+}
+
+.content-table {
+  margin: var(--spacing-lg) 0;
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+      padding: var(--spacing-md);
+      border: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--bg-secondary);
+      font-weight: 600;
+    }
+  }
+}
+
+// Reader Content Styles
+.reader-content {
+  .entry-title {
+    margin: 0 0 var(--spacing-md) 0;
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .entry-date {
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .entry-header {
+    text-align: left;
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    margin: 0 0 var(--spacing-md) 0;
+    font-style: italic;
+  }
+
+  .entry-source {
+    text-align: right;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin: 0 0 var(--spacing-lg) 0;
+  }
+
+  .entry-content {
+    margin: var(--spacing-lg) 0;
+    line-height: 1.8;
+  }
+}
+
+// Daily Entry Alignment Styles
+.daily-entry {
+  .entry-title {
+    text-align: center;
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .entry-date {
+    text-align: right;
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .entry-header {
+    text-align: left;
+    margin: 0 0 var(--spacing-md) 0;
+  }
+
+  .entry-source {
+    text-align: right;
+    margin: 0 0 var(--spacing-lg) 0;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .entry-content {
+    text-align: left;
   }
 }
 
