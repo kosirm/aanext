@@ -52,10 +52,13 @@
       </q-tab-panel>
 
       <!-- Tools Tab -->
-      <q-tab-panel name="tools" class="q-pa-md">
+      <q-tab-panel name="tools" class="q-pa-none">
         <div class="tools-content">
+          <!-- Bookmark Manager - always available on all pages -->
+          <BookmarkManager />
+          <!-- Other tools via slot -->
           <slot name="tools">
-            <div class="text-center text-grey">
+            <div class="text-center text-grey q-pa-md">
               Nema dostupnih alata za ovu stranicu
             </div>
           </slot>
@@ -68,6 +71,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useNavigationStore } from 'src/stores/navigation';
+import BookmarkManager from './BookmarkManager.vue';
 
 interface PageSection {
   id: string;

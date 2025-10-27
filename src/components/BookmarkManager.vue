@@ -115,7 +115,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBooksStore } from 'src/stores/books';
+import { useNavigationStore } from 'src/stores/navigation';
 import { useNavigateToContent } from 'src/composables/useNavigateToContent';
 import type { Bookmark, NavigationTarget } from 'src/types/book';
 
@@ -123,7 +125,9 @@ defineEmits<{
   close: [];
 }>();
 
+const router = useRouter();
 const booksStore = useBooksStore();
+const navigationStore = useNavigationStore();
 const { navigateTo } = useNavigateToContent();
 
 const searchQuery = ref('');
@@ -178,6 +182,13 @@ const toggleGroup = (groupId: string) => {
 
 // Navigate to bookmark
 const navigateToBookmark = async (bookmark: Bookmark) => {
+  // First, navigate to Literatura page if not already there
+  if (navigationStore.currentPage !== 'literatura') {
+    await router.push('/literatura');
+    // Wait for page to load
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+
   const target: NavigationTarget = {
     type: bookmark.type,
     textToHighlight: bookmark.selectedText,
