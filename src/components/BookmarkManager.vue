@@ -1,0 +1,343 @@
+<template>
+  <div class="bookmark-manager">
+    <!-- Header -->
+    <div class="bookmark-header">
+      <h3>Moji Bookmarki</h3>
+      <q-btn icon="close" flat round dense @click="$emit('close')" />
+    </div>
+
+    <!-- Search -->
+    <q-input
+      v-model="searchQuery"
+      outlined
+      dense
+      placeholder="Pretraži bookmarke..."
+      class="q-ma-md"
+    >
+      <template #prepend>
+        <q-icon name="search" />
+      </template>
+    </q-input>
+
+    <!-- Bookmarks List -->
+    <div v-if="filteredBookmarks.length > 0" class="bookmarks-list">
+      <!-- Dnevna Razmatranja Bookmarks -->
+      <div v-if="dnevnaBookmarks.length > 0" class="bookmark-group">
+        <div class="group-header" @click="toggleGroup('dnevna')">
+          <q-icon :name="expandedGroups.dnevna ? 'expand_less' : 'expand_more'" />
+          <span>Dnevna Razmatranja ({{ dnevnaBookmarks.length }})</span>
+        </div>
+        <div v-if="expandedGroups.dnevna" class="group-items">
+          <div
+            v-for="bookmark in dnevnaBookmarks"
+            :key="bookmark.id"
+            class="bookmark-item"
+            @click="navigateToBookmark(bookmark)"
+          >
+            <div class="bookmark-content">
+              <div class="bookmark-date">{{ bookmark.dateString }}</div>
+              <div class="bookmark-text">{{ bookmark.selectedText }}</div>
+              <div v-if="bookmark.comment" class="bookmark-comment">
+                {{ bookmark.comment }}
+              </div>
+            </div>
+            <q-btn
+              icon="delete"
+              flat
+              round
+              dense
+              size="sm"
+              @click.stop="removeBookmark(bookmark.id)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Book Bookmarks (grouped by book) -->
+      <div v-for="book in booksByTitle" :key="book.bookId" class="bookmark-group">
+        <div class="group-header" @click="toggleGroup(book.bookId)">
+          <q-icon :name="expandedGroups[book.bookId] ? 'expand_less' : 'expand_more'" />
+          <span>{{ book.bookTitle }} ({{ book.bookmarks.length }})</span>
+        </div>
+        <div v-if="expandedGroups[book.bookId]" class="group-items">
+          <div
+            v-for="bookmark in book.bookmarks"
+            :key="bookmark.id"
+            class="bookmark-item"
+            @click="navigateToBookmark(bookmark)"
+          >
+            <div class="bookmark-content">
+              <div class="bookmark-chapter">{{ bookmark.chapterTitle }}</div>
+              <div class="bookmark-text">{{ bookmark.selectedText }}</div>
+              <div v-if="bookmark.comment" class="bookmark-comment">
+                {{ bookmark.comment }}
+              </div>
+            </div>
+            <q-btn
+              icon="delete"
+              flat
+              round
+              dense
+              size="sm"
+              @click.stop="removeBookmark(bookmark.id)"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="empty-state">
+      <q-icon name="bookmark_border" size="48px" />
+      <p>Nema bookmaraka</p>
+      <p class="text-caption">Odaberi tekst u knjizi ili dnevnim razmatrajima da kreneš</p>
+    </div>
+
+    <!-- Actions -->
+    <div v-if="filteredBookmarks.length > 0" class="bookmark-actions">
+      <q-btn
+        flat
+        icon="download"
+        label="Preuzmi"
+        @click="exportBookmarks"
+        class="action-btn"
+      />
+      <q-btn
+        flat
+        icon="delete_sweep"
+        label="Obriši sve"
+        @click="deleteAllBookmarks"
+        class="action-btn"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useBooksStore } from 'src/stores/books';
+import { useNavigateToContent } from 'src/composables/useNavigateToContent';
+import type { Bookmark, NavigationTarget } from 'src/types/book';
+
+defineEmits<{
+  close: [];
+}>();
+
+const booksStore = useBooksStore();
+const { navigateTo } = useNavigateToContent();
+
+const searchQuery = ref('');
+const expandedGroups = ref<Record<string, boolean>>({
+  dnevna: true,
+});
+
+// Filter bookmarks by search query
+const filteredBookmarks = computed(() => {
+  if (!searchQuery.value) return booksStore.bookmarksList;
+
+  const query = searchQuery.value.toLowerCase();
+  return booksStore.bookmarksList.filter(
+    (b) =>
+      b.selectedText.toLowerCase().includes(query) ||
+      b.comment?.toLowerCase().includes(query) ||
+      b.chapterTitle?.toLowerCase().includes(query) ||
+      b.dateString?.toLowerCase().includes(query)
+  );
+});
+
+// Dnevna razmatranja bookmarks
+const dnevnaBookmarks = computed(() => {
+  return filteredBookmarks.value.filter((b) => b.type === 'dnevna_razmatranja');
+});
+
+// Book bookmarks grouped by book
+const booksByTitle = computed(() => {
+  const grouped: Record<string, { bookId: string; bookTitle: string; bookmarks: Bookmark[] }> = {};
+
+  filteredBookmarks.value
+    .filter((b) => b.type === 'book')
+    .forEach((bookmark) => {
+      const key = bookmark.bookId || 'unknown';
+      if (!grouped[key]) {
+        grouped[key] = {
+          bookId: key,
+          bookTitle: bookmark.bookTitle || 'Unknown',
+          bookmarks: [],
+        };
+      }
+      grouped[key].bookmarks.push(bookmark);
+    });
+
+  return Object.values(grouped);
+});
+
+// Toggle group expansion
+const toggleGroup = (groupId: string) => {
+  expandedGroups.value[groupId] = !expandedGroups.value[groupId];
+};
+
+// Navigate to bookmark
+const navigateToBookmark = async (bookmark: Bookmark) => {
+  const target: NavigationTarget = {
+    type: bookmark.type,
+    textToHighlight: bookmark.selectedText,
+  };
+
+  if (bookmark.type === 'dnevna_razmatranja' && bookmark.date) {
+    target.date = bookmark.date;
+  } else if (bookmark.type === 'book') {
+    if (bookmark.bookId) target.bookId = bookmark.bookId;
+    if (bookmark.chapterId) target.chapterId = bookmark.chapterId;
+  }
+
+  await navigateTo(target);
+};
+
+// Remove bookmark
+const removeBookmark = (bookmarkId: string) => {
+  booksStore.removeBookmark(bookmarkId);
+};
+
+// Delete all bookmarks
+const deleteAllBookmarks = () => {
+  if (confirm('Jeste li sigurni da želite obrisati sve bookmarke?')) {
+    booksStore.deleteAllBookmarks();
+  }
+};
+
+// Export bookmarks
+const exportBookmarks = () => {
+  const data = JSON.stringify(booksStore.bookmarksList, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bookmarki-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+</script>
+
+<style scoped lang="scss">
+.bookmark-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--bg-primary);
+}
+
+.bookmark-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+
+  h3 {
+    margin: 0;
+    font-size: var(--font-size-lg);
+  }
+}
+
+.bookmarks-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+.bookmark-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+
+  &:hover {
+    background-color: var(--bg-tertiary);
+  }
+}
+
+.group-items {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.bookmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--bg-tertiary);
+    transform: translateX(4px);
+  }
+}
+
+.bookmark-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookmark-date,
+.bookmark-chapter {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.bookmark-text {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  word-break: break-word;
+}
+
+.bookmark-comment {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: var(--spacing-xs);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+
+  p {
+    margin: var(--spacing-md) 0 0 0;
+  }
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.action-btn {
+  flex: 1;
+}
+</style>
+

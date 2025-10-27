@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { UnifiedBook, BookChapter } from 'src/types/book';
+import type { UnifiedBook, BookChapter, Bookmark } from 'src/types/book';
 
 // Track last opened book and chapter
 export interface LastReadState {
@@ -22,7 +22,7 @@ export const useBooksStore = defineStore('books', () => {
   const books = ref<UnifiedBook[]>([]);
   const currentBookId = ref<string | null>(null);
   const currentChapterId = ref<string | null>(null);
-  const bookmarks = ref<Map<string, Set<string>>>(new Map()); // bookId -> Set of chapterIds
+  const bookmarksList = ref<Bookmark[]>([]); // New comprehensive bookmarks list
   const lastRead = ref<LastReadState>({
     bookId: null,
     chapterId: null,
@@ -34,16 +34,10 @@ export const useBooksStore = defineStore('books', () => {
 
   // Load bookmarks from localStorage
   const loadBookmarks = () => {
-    const saved = localStorage.getItem('aa-bookmarks');
+    const saved = localStorage.getItem('aa-bookmarks-list');
     if (saved) {
       try {
-        const data = JSON.parse(saved);
-        bookmarks.value = new Map(
-          Object.entries(data).map(([bookId, chapterIds]) => [
-            bookId,
-            new Set(chapterIds as string[]),
-          ])
-        );
+        bookmarksList.value = JSON.parse(saved);
       } catch (e) {
         console.error('Failed to load bookmarks:', e);
       }
@@ -81,11 +75,7 @@ export const useBooksStore = defineStore('books', () => {
 
   // Save bookmarks to localStorage
   const saveBookmarks = () => {
-    const data: Record<string, string[]> = {};
-    bookmarks.value.forEach((chapterIds, bookId) => {
-      data[bookId] = Array.from(chapterIds);
-    });
-    localStorage.setItem('aa-bookmarks', JSON.stringify(data));
+    localStorage.setItem('aa-bookmarks-list', JSON.stringify(bookmarksList.value));
   };
 
   // Save last read state to localStorage
@@ -225,25 +215,52 @@ export const useBooksStore = defineStore('books', () => {
   };
 
   // Bookmark methods
-  const toggleBookmark = (bookId: string, chapterId: string) => {
-    if (!bookmarks.value.has(bookId)) {
-      bookmarks.value.set(bookId, new Set());
-    }
-    const bookmarks_set = bookmarks.value.get(bookId)!;
-    if (bookmarks_set.has(chapterId)) {
-      bookmarks_set.delete(chapterId);
-    } else {
-      bookmarks_set.add(chapterId);
-    }
+  const addBookmark = (bookmark: Omit<Bookmark, 'id' | 'timestamp'>): Bookmark => {
+    const newBookmark: Bookmark = {
+      ...bookmark,
+      id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      timestamp: Date.now(),
+    };
+    bookmarksList.value.unshift(newBookmark); // Add to beginning
     saveBookmarks();
+    return newBookmark;
   };
 
-  const isBookmarked = (bookId: string, chapterId: string): boolean => {
-    return bookmarks.value.get(bookId)?.has(chapterId) ?? false;
+  const removeBookmark = (bookmarkId: string): boolean => {
+    const index = bookmarksList.value.findIndex((b) => b.id === bookmarkId);
+    if (index !== -1) {
+      bookmarksList.value.splice(index, 1);
+      saveBookmarks();
+      return true;
+    }
+    return false;
   };
 
-  const getBookmarks = (bookId: string): string[] => {
-    return Array.from(bookmarks.value.get(bookId) ?? new Set());
+  const updateBookmark = (bookmarkId: string, updates: Partial<Bookmark>): boolean => {
+    const bookmark = bookmarksList.value.find((b) => b.id === bookmarkId);
+    if (bookmark) {
+      Object.assign(bookmark, updates);
+      saveBookmarks();
+      return true;
+    }
+    return false;
+  };
+
+  const getBookmarksByBook = (bookId: string): Bookmark[] => {
+    return bookmarksList.value.filter((b) => b.type === 'book' && b.bookId === bookId);
+  };
+
+  const getBookmarksByDate = (date: string): Bookmark[] => {
+    return bookmarksList.value.filter((b) => b.type === 'dnevna_razmatranja' && b.date === date);
+  };
+
+  const getAllBookmarks = (): Bookmark[] => {
+    return bookmarksList.value;
+  };
+
+  const deleteAllBookmarks = (): void => {
+    bookmarksList.value = [];
+    saveBookmarks();
   };
 
   // Computed properties
@@ -299,7 +316,7 @@ export const useBooksStore = defineStore('books', () => {
     books,
     currentBookId,
     currentChapterId,
-    bookmarks,
+    bookmarksList,
     lastRead,
     isLoading,
     error,
@@ -311,9 +328,13 @@ export const useBooksStore = defineStore('books', () => {
     saveLastRead,
     setCurrentBook,
     setCurrentChapter,
-    toggleBookmark,
-    isBookmarked,
-    getBookmarks,
+    addBookmark,
+    removeBookmark,
+    updateBookmark,
+    getBookmarksByBook,
+    getBookmarksByDate,
+    getAllBookmarks,
+    deleteAllBookmarks,
     nextChapter,
     previousChapter,
     // Computed
