@@ -292,6 +292,14 @@ const showCalendarModal = ref(false);
 const selectedChapterId = ref<string | null>(null);
 
 // Initialize books on mount
+// Listen for navigation to dnevna razmatranja
+const handleNavigateToDnevna = (event: Event) => {
+  const customEvent = event as CustomEvent;
+  if (customEvent.detail?.date) {
+    selectedDate.value = customEvent.detail.date;
+  }
+};
+
 onMounted(async () => {
   console.log('[LiteraturaPage] Component mounted');
   await booksStore.loadBooks();
@@ -304,12 +312,14 @@ onMounted(async () => {
   console.log('[LiteraturaPage] Adding text selection event listeners');
   document.addEventListener('selectionchange', handleSelectionChange);
   document.addEventListener('contextmenu', handleContextMenu);
+  window.addEventListener('navigate-to-dnevna', handleNavigateToDnevna);
 });
 
 // Cleanup event listeners on unmount
 onUnmounted(() => {
   document.removeEventListener('selectionchange', handleSelectionChange);
   document.removeEventListener('contextmenu', handleContextMenu);
+  window.removeEventListener('navigate-to-dnevna', handleNavigateToDnevna);
 });
 
 // Watch for current chapter changes to update selected chapter
@@ -1008,6 +1018,16 @@ h2 {
       order: 1;
     }
   }
+}
+
+// Highlight styles for bookmarks
+mark.highlight {
+  background-color: #e8e8e8;
+  border-radius: 3px;
+  border: 1px solid #cccccc;
+  padding: 0;
+  margin: 0;
+  display: inline;
 }
 
 // Responsive

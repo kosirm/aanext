@@ -134,7 +134,7 @@ export default defineConfig((ctx) => {
       directives: ['TouchSwipe'], // Enable Touch Swipe directive globally
 
       // Quasar plugins
-      plugins: ['Dark'],
+      plugins: ['Dark', 'Notify'],
     },
 
     // animations: 'all', // --- includes all animations
