@@ -80,3 +80,48 @@ export interface OldBook {
   choices: OldBookChoice[];
 }
 
+/**
+ * Bookmark - represents a user bookmark with selected text and metadata
+ * Designed to be reusable for both bookmarks and search results
+ */
+export interface Bookmark {
+  id: string; // Unique ID (timestamp + random)
+  type: 'dnevna_razmatranja' | 'book'; // Content type
+  selectedText: string; // Selected text (max 500 chars)
+  comment?: string; // User comment
+  timestamp: number; // Creation time
+
+  // For dnevna razmatranja
+  date?: string; // 2024-MM-DD format
+  dateString?: string; // Display format (e.g., "26. LISTOPADA")
+
+  // For books
+  bookId?: string; // Book ID
+  bookTitle?: string; // Book title
+  chapterId?: string; // Chapter ID
+  chapterTitle?: string; // Chapter title
+
+  // Position tracking (for navigation and highlighting)
+  textPosition?: number; // Character position in content
+  elementSelector?: string; // CSS selector to find element
+  elementIndex?: number; // Index of element in content array
+}
+
+/**
+ * Navigation target - used for both bookmarks and search results
+ * Tells the app where to navigate and what to highlight
+ */
+export interface NavigationTarget {
+  type: 'dnevna_razmatranja' | 'book';
+
+  // For dnevna razmatranja
+  date?: string; // 2024-MM-DD format
+
+  // For books
+  bookId?: string;
+  chapterId?: string;
+
+  // Highlighting
+  textToHighlight: string;
+  textPosition?: number; // Character position for more precise highlighting
+}

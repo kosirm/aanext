@@ -1,5 +1,8 @@
 <template>
   <div class="literatura-page">
+    <!-- Mobile Debug Modal -->
+    <MobileDebugModal />
+
     <!-- Header Section -->
     <section id="header" class="hero-section">
       <div class="hero-content">
@@ -240,16 +243,32 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Floating Action Menu -->
+    <FloatingActionMenu
+      :is-active="selectionInfo.isActive"
+      :selected-text="selectionInfo.text"
+      :position="{ x: selectionInfo.x, y: selectionInfo.y }"
+      @bookmark="handleBookmarkFromSelection"
+      @share="handleShareSelection"
+      @report-error="handleReportError"
+      @close="clearSelection"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBooksStore } from 'src/stores/books';
+import { useTextSelection } from 'src/composables/useTextSelection';
+import FloatingActionMenu from 'src/components/FloatingActionMenu.vue';
+import MobileDebugModal from 'src/components/MobileDebugModal.vue';
+import type { Bookmark } from 'src/types/book';
 
 const $q = useQuasar();
 const booksStore = useBooksStore();
+const { selectionInfo, clearSelection, handleContextMenu, handleSelectionChange, getTruncatedSelectedText } = useTextSelection();
 
 // Helper function to generate book ID from title
 const getBookId = (bookTitle: string): string => {
@@ -274,11 +293,23 @@ const selectedChapterId = ref<string | null>(null);
 
 // Initialize books on mount
 onMounted(async () => {
+  console.log('[LiteraturaPage] Component mounted');
   await booksStore.loadBooks();
   // Initialize selectedChapterId with current chapter
   if (booksStore.currentChapterId) {
     selectedChapterId.value = booksStore.currentChapterId;
   }
+
+  // Add text selection listeners for bookmarks
+  console.log('[LiteraturaPage] Adding text selection event listeners');
+  document.addEventListener('selectionchange', handleSelectionChange);
+  document.addEventListener('contextmenu', handleContextMenu);
+});
+
+// Cleanup event listeners on unmount
+onUnmounted(() => {
+  document.removeEventListener('selectionchange', handleSelectionChange);
+  document.removeEventListener('contextmenu', handleContextMenu);
 });
 
 // Watch for current chapter changes to update selected chapter
@@ -382,7 +413,9 @@ const chapterOptions = computed(() => {
 
 const isCurrentChapterBookmarked = computed(() => {
   if (!booksStore.currentBookId || !booksStore.currentChapterId) return false;
-  return booksStore.isBookmarked(booksStore.currentBookId, booksStore.currentChapterId);
+  return booksStore.bookmarksList.some(
+    (b) => b.type === 'book' && b.bookId === booksStore.currentBookId && b.chapterId === booksStore.currentChapterId
+  );
 });
 
 // Helper function to convert date to 2024 reference year format
@@ -426,9 +459,132 @@ const formattedSelectedDate = computed(() => {
 });
 
 const toggleBookmark = () => {
-  if (booksStore.currentBookId && booksStore.currentChapterId) {
-    booksStore.toggleBookmark(booksStore.currentBookId, booksStore.currentChapterId);
+  if (!booksStore.currentBookId || !booksStore.currentChapterId || !booksStore.currentChapter) return;
+
+  const isBookmarked = isCurrentChapterBookmarked.value;
+
+  if (isBookmarked) {
+    // Remove bookmark
+    const bookmarkToRemove = booksStore.bookmarksList.find(
+      (b) => b.type === 'book' && b.bookId === booksStore.currentBookId && b.chapterId === booksStore.currentChapterId
+    );
+    if (bookmarkToRemove) {
+      booksStore.removeBookmark(bookmarkToRemove.id);
+    }
+  } else {
+    // Add bookmark
+    const bookmarkData: Omit<Bookmark, 'id' | 'timestamp'> = {
+      type: 'book',
+      selectedText: booksStore.currentChapter.chapterTitle || '',
+      bookId: booksStore.currentBookId,
+      chapterId: booksStore.currentChapterId,
+    };
+    if (booksStore.currentBook?.bookTitle) {
+      bookmarkData.bookTitle = booksStore.currentBook.bookTitle;
+    }
+    if (booksStore.currentChapter.chapterTitle) {
+      bookmarkData.chapterTitle = booksStore.currentChapter.chapterTitle;
+    }
+    booksStore.addBookmark(bookmarkData);
   }
+};
+
+// Handle bookmark creation from text selection
+const handleBookmarkFromSelection = () => {
+  if (!selectionInfo.value.text) return;
+
+  const truncatedText = getTruncatedSelectedText();
+
+  // Determine if we're in dnevna or book content
+  const isDnevna = document.querySelector('.daily-entry .entry-content')?.contains(
+    window.getSelection()?.anchorNode as Node
+  );
+
+  if (isDnevna) {
+    // Create bookmark for dnevna razmatranja
+    const bookmarkData: Omit<Bookmark, 'id' | 'timestamp'> = {
+      type: 'dnevna_razmatranja',
+      selectedText: truncatedText,
+    };
+    if (selectedDate.value) {
+      bookmarkData.date = selectedDate.value;
+    }
+    if (currentDailyEntry.value?.date) {
+      bookmarkData.dateString = currentDailyEntry.value.date;
+    }
+    booksStore.addBookmark(bookmarkData);
+  } else {
+    // Create bookmark for book
+    if (!booksStore.currentBookId || !booksStore.currentChapterId || !booksStore.currentChapter) return;
+
+    const bookmarkData: Omit<Bookmark, 'id' | 'timestamp'> = {
+      type: 'book',
+      selectedText: truncatedText,
+      bookId: booksStore.currentBookId,
+      chapterId: booksStore.currentChapterId,
+    };
+    if (booksStore.currentBook?.bookTitle) {
+      bookmarkData.bookTitle = booksStore.currentBook.bookTitle;
+    }
+    if (booksStore.currentChapter.chapterTitle) {
+      bookmarkData.chapterTitle = booksStore.currentChapter.chapterTitle;
+    }
+    booksStore.addBookmark(bookmarkData);
+  }
+
+  clearSelection();
+  $q.notify({
+    type: 'positive',
+    message: 'Bookmark je dodan',
+    position: 'top',
+    timeout: 2000,
+  });
+};
+
+// Handle share (placeholder for now)
+const handleShareSelection = async () => {
+  const text = selectionInfo.value.text;
+  if (!text) return;
+
+  // Try to use native share API if available
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'AA Hrvatska - Bookmark',
+        text: text,
+        url: window.location.href,
+      });
+    } catch (error) {
+      console.error('Share failed:', error);
+    }
+  } else {
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(text);
+      $q.notify({
+        type: 'positive',
+        message: 'Tekst je kopiran u clipboard',
+        position: 'top',
+        timeout: 2000,
+      });
+    } catch (error) {
+      console.error('Clipboard copy failed:', error);
+    }
+  }
+
+  clearSelection();
+};
+
+// Handle error reporting (placeholder for now)
+const handleReportError = () => {
+  const text = selectionInfo.value.text;
+  $q.notify({
+    type: 'info',
+    message: 'Greška je prijavljena: ' + text.substring(0, 50),
+    position: 'top',
+    timeout: 2000,
+  });
+  clearSelection();
 };
 </script>
 
