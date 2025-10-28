@@ -2,17 +2,46 @@
   <div class="bookmark-manager">
     <!-- Header -->
     <div class="bookmark-header">
-      <h3>Moji Bookmarki</h3>
-      <q-btn icon="close" flat round dense @click="$emit('close')" />
+      <h3 class="oznakeTitle">Oznake</h3>
+      <div class="header-actions">
+        <!-- Search Toggle Button -->
+        <q-btn
+          icon="search"
+          flat
+          round
+          dense
+          @click="showSearch = !showSearch"
+          :color="showSearch ? 'primary' : 'inherit'"
+        />
+        <!-- Import/Export Button -->
+        <q-btn
+          icon="swap_vert"
+          flat
+          round
+          dense
+          @click="showImportExportDialog = true"
+        />
+        <!-- Delete All Button -->
+        <q-btn
+          icon="delete_sweep"
+          flat
+          round
+          dense
+          @click="deleteAllBookmarks"
+          :disable="filteredBookmarks.length === 0"
+        />
+      </div>
     </div>
 
-    <!-- Search -->
+    <!-- Search Input (Hidden by default) -->
     <q-input
+      v-if="showSearch"
       v-model="searchQuery"
       outlined
       dense
-      placeholder="Pretraži bookmarke..."
+      placeholder="Pretraži oznake..."
       class="q-ma-md"
+      autofocus
     >
       <template #prepend>
         <q-icon name="search" />
@@ -25,7 +54,7 @@
       <div v-if="dnevnaBookmarks.length > 0" class="bookmark-group">
         <div class="group-header" @click="toggleGroup('dnevna')">
           <q-icon :name="expandedGroups.dnevna ? 'expand_less' : 'expand_more'" />
-          <span>Dnevna Razmatranja ({{ dnevnaBookmarks.length }})</span>
+          <span>Dnevna Razmatranja ({{ dnevnaBookmarks.length }} oznaka)</span>
         </div>
         <div v-if="expandedGroups.dnevna" class="group-items">
           <div
@@ -57,7 +86,7 @@
       <div v-for="book in booksByTitle" :key="book.bookId" class="bookmark-group">
         <div class="group-header" @click="toggleGroup(book.bookId)">
           <q-icon :name="expandedGroups[book.bookId] ? 'expand_less' : 'expand_more'" />
-          <span>{{ book.bookTitle }} ({{ book.bookmarks.length }})</span>
+          <span>{{ book.bookTitle }} ({{ book.bookmarks.length }} oznaka)</span>
         </div>
         <div v-if="expandedGroups[book.bookId]" class="group-items">
           <div
@@ -89,27 +118,39 @@
     <!-- Empty State -->
     <div v-else class="empty-state">
       <q-icon name="bookmark_border" size="48px" />
-      <p>Nema bookmaraka</p>
+      <p>Nema oznaka</p>
       <p class="text-caption">Odaberi tekst u knjizi ili dnevnim razmatrajima da kreneš</p>
     </div>
 
-    <!-- Actions -->
-    <div v-if="filteredBookmarks.length > 0" class="bookmark-actions">
-      <q-btn
-        flat
-        icon="download"
-        label="Preuzmi"
-        @click="exportBookmarks"
-        class="action-btn"
-      />
-      <q-btn
-        flat
-        icon="delete_sweep"
-        label="Obriši sve"
-        @click="deleteAllBookmarks"
-        class="action-btn"
-      />
-    </div>
+    <!-- Import/Export Dialog -->
+    <q-dialog v-model="showImportExportDialog">
+      <q-card style="min-width: 300px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Import/Export Oznaka</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="row gap-md">
+            <q-btn
+              label="Export"
+              icon="download"
+              color="primary"
+              @click="exportBookmarks"
+              class="col"
+            />
+            <q-btn
+              label="Import"
+              icon="upload"
+              color="primary"
+              @click="importBookmarks"
+              class="col"
+            />
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -131,6 +172,8 @@ const navigationStore = useNavigationStore();
 const { navigateTo } = useNavigateToContent();
 
 const searchQuery = ref('');
+const showSearch = ref(false);
+const showImportExportDialog = ref(false);
 const expandedGroups = ref<Record<string, boolean>>({
   dnevna: true,
 });
@@ -211,8 +254,9 @@ const removeBookmark = (bookmarkId: string) => {
 
 // Delete all bookmarks
 const deleteAllBookmarks = () => {
-  if (confirm('Jeste li sigurni da želite obrisati sve bookmarke?')) {
+  if (confirm('Jeste li sigurni da želite obrisati sve oznake?')) {
     booksStore.deleteAllBookmarks();
+    showImportExportDialog.value = false;
   }
 };
 
@@ -223,9 +267,40 @@ const exportBookmarks = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `bookmarki-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = `oznake-${new Date().toISOString().split('T')[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  showImportExportDialog.value = false;
+};
+
+// Import bookmarks
+const importBookmarks = () => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target?.result as string);
+          if (Array.isArray(data)) {
+            // Add imported bookmarks to store
+            data.forEach((bookmark: Bookmark) => {
+              booksStore.addBookmark(bookmark);
+            });
+            showImportExportDialog.value = false;
+          }
+        } catch (error) {
+          console.error('Error importing bookmarks:', error);
+          alert('Greška pri učitavanju oznaka');
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+  input.click();
 };
 </script>
 
@@ -241,13 +316,19 @@ const exportBookmarks = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--border-color);
 
   h3 {
     margin: 0;
     font-size: var(--font-size-lg);
+    flex: 1;
   }
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-sm);
 }
 
 .bookmarks-list {
@@ -314,7 +395,7 @@ const exportBookmarks = () => {
 }
 
 .bookmark-text {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-sm);
   color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
   word-break: break-word;
@@ -326,7 +407,12 @@ const exportBookmarks = () => {
   font-style: italic;
   margin-top: var(--spacing-xs);
 }
-
+.oznakeTitle {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -338,17 +424,6 @@ const exportBookmarks = () => {
   p {
     margin: var(--spacing-md) 0 0 0;
   }
-}
-
-.bookmark-actions {
-  display: flex;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--border-color);
-}
-
-.action-btn {
-  flex: 1;
 }
 </style>
 

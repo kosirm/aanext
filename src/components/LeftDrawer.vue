@@ -26,8 +26,8 @@
       active-color="primary"
       indicator-color="primary"
     >
-      <q-tab name="navigation" label="Navigacija" icon="home" />
-      <q-tab name="tools" label="Alati" icon="settings" />
+      <q-tab name="tools" icon="settings" />
+      <q-tab name="navigation" icon="home" />
     </q-tabs>
 
     <!-- Tab Panels -->

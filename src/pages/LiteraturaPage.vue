@@ -1,5 +1,5 @@
 <template>
-  <div class="literatura-page">
+  <div class="literatura-page" :class="{ 'is-navigating': navigationStore.isNavigating }">
     <!-- Mobile Debug Modal -->
     <MobileDebugModal />
 
@@ -261,6 +261,7 @@
 import { ref, computed, onMounted, watch, onUnmounted } from 'vue';
 import { useQuasar } from 'quasar';
 import { useBooksStore } from 'src/stores/books';
+import { useNavigationStore } from 'src/stores/navigation';
 import { useTextSelection } from 'src/composables/useTextSelection';
 import FloatingActionMenu from 'src/components/FloatingActionMenu.vue';
 import MobileDebugModal from 'src/components/MobileDebugModal.vue';
@@ -268,6 +269,7 @@ import type { Bookmark } from 'src/types/book';
 
 const $q = useQuasar();
 const booksStore = useBooksStore();
+const navigationStore = useNavigationStore();
 const { selectionInfo, clearSelection, handleContextMenu, handleSelectionChange, getTruncatedSelectedText } = useTextSelection();
 
 // Helper function to generate book ID from title
@@ -1022,12 +1024,24 @@ h2 {
 
 // Highlight styles for bookmarks
 mark.highlight {
-  background-color: #e8e8e8;
+  background-color: #b3e5fc !important;
   border-radius: 3px;
-  border: 1px solid #cccccc;
+  // border: 1px solid #cccccc;
   padding: 0;
   margin: 0;
   display: inline;
+}
+
+// Navigation fade animation
+.literatura-page {
+  opacity: 1;
+  transition: opacity 0.4s ease-in;
+
+  &.is-navigating {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.05s ease-out;
+  }
 }
 
 // Responsive

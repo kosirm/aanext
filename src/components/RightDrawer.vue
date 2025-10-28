@@ -26,8 +26,8 @@
       active-color="primary"
       indicator-color="primary"
     >
-      <q-tab name="navigation" label="Sekcije" icon="list" />
-      <q-tab name="tools" label="Alati" icon="build" />
+      <q-tab name="navigation" icon="list" />
+      <q-tab name="tools" icon="bookmark" />
     </q-tabs>
 
     <!-- Tab Panels -->
@@ -58,9 +58,6 @@
           <BookmarkManager />
           <!-- Other tools via slot -->
           <slot name="tools">
-            <div class="text-center text-grey q-pa-md">
-              Nema dostupnih alata za ovu stranicu
-            </div>
           </slot>
         </div>
       </q-tab-panel>

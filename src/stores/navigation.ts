@@ -13,6 +13,7 @@ export const useNavigationStore = defineStore('navigation', () => {
   const rightDrawerOpen = ref(false);
   const leftDrawerTab = ref<'navigation' | 'tools'>('navigation');
   const rightDrawerTab = ref<'navigation' | 'tools'>('navigation');
+  const isNavigating = ref(false);
 
   // Setters
   const setCurrentPage = (page: PageName) => {
@@ -72,6 +73,7 @@ export const useNavigationStore = defineStore('navigation', () => {
     rightDrawerOpen,
     leftDrawerTab,
     rightDrawerTab,
+    isNavigating,
     // Methods
     setCurrentPage,
     toggleLeftDrawer,
