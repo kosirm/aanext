@@ -4,7 +4,11 @@
     <MobileDebugModal />
 
     <!-- Header Section -->
-    <section id="header" class="hero-section">
+    <section
+      id="header"
+      class="hero-section"
+      v-touch-swipe.mouse.horizontal="handleSwipe"
+    >
       <div class="hero-content">
         <h1>A.A. Literatura</h1>
         <p>Dnevna razmatranja i knjige AA-a</p>
@@ -263,6 +267,7 @@ import { useQuasar } from 'quasar';
 import { useBooksStore } from 'src/stores/books';
 import { useNavigationStore } from 'src/stores/navigation';
 import { useTextSelection } from 'src/composables/useTextSelection';
+import { usePageNavigation } from 'src/composables/usePageNavigation';
 import FloatingActionMenu from 'src/components/FloatingActionMenu.vue';
 import MobileDebugModal from 'src/components/MobileDebugModal.vue';
 import type { Bookmark } from 'src/types/book';
@@ -271,6 +276,7 @@ const $q = useQuasar();
 const booksStore = useBooksStore();
 const navigationStore = useNavigationStore();
 const { selectionInfo, clearSelection, handleContextMenu, handleSelectionChange, getTruncatedSelectedText } = useTextSelection();
+const { handleSwipe } = usePageNavigation();
 
 // Helper function to generate book ID from title
 const getBookId = (bookTitle: string): string => {

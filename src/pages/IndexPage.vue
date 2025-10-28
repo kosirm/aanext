@@ -1,7 +1,12 @@
 <template>
   <q-page class="index-page">
     <!-- Hero Section -->
-    <section id="hero" class="hero-section mbr-parallax-background" style="background-image: url('/assets/images/header.webp');">
+    <section
+      id="hero"
+      class="hero-section mbr-parallax-background"
+      style="background-image: url('/assets/images/header.webp');"
+      v-touch-swipe.mouse.horizontal="handleSwipe"
+    >
       <div class="mbr-overlay" style="opacity: 0.5; background-color: rgb(9, 57, 89);"></div>
       <div class="hero-content q-pa-xl text-white text-center">
         <h1 class="text-h1 q-mb-md header-title">
@@ -58,36 +63,90 @@
     </section>
 
     <!-- Shortcuts Carousel -->
-    <section id="shortcuts" class="carousel-section" data-carousel>
+    <section id="shortcuts" class="carousel-section">
       <div class="section-container">
-        <h2>Brzi pristup</h2>
-        <ResponsiveCarousel
-          :min-item-width="280"
-          :max-item-width="300"
-          :gap="16"
-          :item-height="280"
-          :dot-size="24"
-          dot-inactive-color="var(--text-secondary)"
-          dot-active-color="#000000"
-        >
-          <div
-            v-for="(card, index) in shortcutCards"
-            :key="index"
-            class="shortcut-card"
+        <div class="shortcuts-swiper-wrapper">
+          <Swiper
+            ref="swiperRef"
+            :modules="swiperModules"
+            :slides-per-view="1"
+            :space-between="0"
+            :loop="true"
+            :touch-start-prevent-default="false"
+            :simulate-touch="true"
+            :allow-touch-move="true"
+            :touch-ratio="1"
+            :touch-angle="45"
+            :long-swipes="true"
+            :long-swipes-ratio="0.5"
+            :long-swipes-ms="300"
+            :follow-finger="true"
+            :short-swipes="true"
+            :threshold="5"
+            :touch-release-on-edges="true"
+            direction="horizontal"
+            :touches-direction="'horizontal'"
+            :autoplay="{
+              delay: 6000,
+              disableOnInteraction: false,
+            }"
+            :speed="1000"
+            :pagination="{
+              clickable: true,
+            }"
+            :keyboard="{
+              enabled: true,
+            }"
+            :breakpoints="{
+              486: {
+                slidesPerView: 1,
+                spaceBetween: 0,
+              },
+              776: {
+                slidesPerView: 2,
+                spaceBetween: 0,
+              },
+              1480: {
+                slidesPerView: 3,
+                spaceBetween: 0,
+              },
+              1920: {
+                slidesPerView: 4,
+                spaceBetween: 0,
+              },
+            }"
+            class="shortcuts-swiper"
+            @autoplay-time-left="onAutoplayTimeLeft"
           >
-            <div class="card-content">
-              <q-icon :name="card.icon" size="3rem" color="primary" />
-              <h3>{{ card.title }}</h3>
-              <p>{{ card.description }}</p>
-              <q-btn
-                flat
-                color="primary"
-                :label="card.buttonLabel"
-                :to="card.link"
-              />
-            </div>
+            <SwiperSlide
+              v-for="(card, index) in shortcutCards"
+              :key="index"
+              :class="card.slideClass"
+            >
+              <div :class="['card-bg', card.bgClass]"></div>
+              <div class="card">
+                <div :class="['card-image', card.imageClass]"></div>
+                <div class="card-text-div">
+                  <p class="card-text">{{ card.text }}</p>
+                </div>
+                <div class="card-button">
+                  <q-btn
+                    color="primary"
+                    :label="card.buttonLabel"
+                    :to="card.link"
+                    class="slide-btn"
+                  />
+                </div>
+              </div>
+            </SwiperSlide>
+          </Swiper>
+          <!-- Autoplay progress -->
+          <div class="autoplay-progress">
+            <svg viewBox="0 0 48 48" ref="progressCircle">
+              <circle cx="24" cy="24" r="20"></circle>
+            </svg>
           </div>
-        </ResponsiveCarousel>
+        </div>
       </div>
     </section>
 
@@ -195,12 +254,432 @@
         </div>
       </div>
     </section>
+
+    <!-- Susjedne Grupe Title Section -->
+    <section id="susjedne-grupe" class="content-section q-pa-lg">
+      <div class="container">
+        <div class="row justify-center">
+          <div class="col-12 text-center">
+            <hr class="q-my-lg" style="border-top: 1px solid #ddd; width: 100%;">
+            <h2 class="text-weight-bold q-my-lg" style="font-size: var(--font-size-4xl); color: var(--q-primary);">Susjedne online grupe</h2>
+            <hr class="q-my-lg" style="border-top: 1px solid #ddd; width: 100%;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grupe Swiper Section -->
+    <section id="swiper-grupe" class="grupe-swiper-section" style="width: 100vw; margin-left: calc(-50vw + 50%); padding: 0 0;">
+      <div class="container-fluid">
+        <div class="grupe-swiper-wrapper">
+          <Swiper
+            ref="grupeSwiperRef"
+            :modules="swiperModules"
+            :slides-per-view="1"
+            :space-between="0"
+            :loop="true"
+            :touch-start-prevent-default="false"
+            :simulate-touch="true"
+            :allow-touch-move="true"
+            :touch-ratio="1"
+            :touch-angle="45"
+            :long-swipes="true"
+            :long-swipes-ratio="0.5"
+            :long-swipes-ms="300"
+            :follow-finger="true"
+            :short-swipes="true"
+            :threshold="5"
+            :touch-release-on-edges="true"
+            direction="horizontal"
+            :touches-direction="'horizontal'"
+            :autoplay="{
+              delay: 6000,
+              disableOnInteraction: false,
+            }"
+            :speed="1000"
+            :pagination="{
+              clickable: true,
+            }"
+            :keyboard="{
+              enabled: true,
+            }"
+            :breakpoints="{
+              486: { slidesPerView: 1, spaceBetween: 0 },
+              776: { slidesPerView: 2, spaceBetween: 0 },
+              1480: { slidesPerView: 3, spaceBetween: 0 },
+              1920: { slidesPerView: 4, spaceBetween: 0 },
+            }"
+            class="grupe-swiper"
+            @autoplay-time-left="onGrupeAutoplayTimeLeft"
+          >
+            <SwiperSlide
+              v-for="(grupa, index) in grupeCards"
+              :key="index"
+              :class="`slide-${index + 1}`"
+            >
+              <div class="card-bg" :class="`bg-${index + 1}`"></div>
+              <div class="card" :id="`card-${index + 1}`">
+                <div class="card-image" :class="`g-${index + 1}`">
+                  <div class="card-text-overlay">
+                    <span class="grupa-naslov">{{ grupa.title }}</span>
+                    <span v-if="grupa.note" class="note">{{ grupa.note }}</span>
+                  </div>
+                </div>
+                <div class="card-text-div" :class="`card-text-${index + 1}`">
+                  <p class="card-text-grupe" v-html="grupa.schedule"></p>
+                </div>
+                <div class="card-button">
+                  <q-btn
+                    color="primary"
+                    label="Otvori Zoom"
+                    :href="grupa.link"
+                    target="_blank"
+                    class="slide-btn"
+                  />
+                </div>
+              </div>
+            </SwiperSlide>
+          </Swiper>
+          <!-- Autoplay progress -->
+          <div class="autoplay-progress">
+            <svg viewBox="0 0 48 48" ref="grupeProgressCircle">
+              <circle cx="24" cy="24" r="20"></circle>
+            </svg>
+            <span ref="grupeProgressContent"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Živi Sastanci Title Section -->
+    <section id="zivi-sastanci" class="content-section q-pa-lg">
+      <div class="container">
+        <div class="row justify-center">
+          <div class="col-12 text-center">
+            <hr class="q-my-lg" style="border-top: 1px solid #ddd; width: 100%;">
+            <h2 class="text-weight-bold q-my-lg" style="font-size: var(--font-size-4xl); color: var(--q-primary);">Živi sastanci</h2>
+            <hr class="q-my-lg" style="border-top: 1px solid #ddd; width: 100%;">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Meetings Expandable Section -->
+    <section id="live-meetings" class="content-section live-meetings-expandable q-pa-lg">
+      <div class="container">
+        <div class="row justify-center">
+          <div class="col-12 col-md-10">
+            <q-list>
+              <!-- Zagreb -->
+              <q-expansion-item
+                v-model="liveMeetings.zagreb"
+                icon="place"
+                label="Zagreb"
+                header-class="text-weight-bold text-h6"
+              >
+                <q-card>
+                  <q-card-section>
+                    <div class="row q-col-gutter-md">
+                      <!-- Text Content -->
+                      <div class="col-12 col-md-6">
+                        <h6 class="text-h6 text-weight-bold q-mb-md">
+                          Grupa Trijezni u Zagrebu<br>
+                          Crkva Mati Slobode, Ul. don Petra Šimića 1, Zagreb
+                        </h6>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="groups" size="50px" color="deep-orange-5" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Sastanci</h6>
+                          <p class="meeting-schedule">
+                            <strong>Ponedjeljak 19:00</strong> - Engleski jezik<br>
+                            <strong>Utorak 19:00</strong> - Hrvatski jezik<br>
+                            <strong>Četvrtak 19:00</strong> - Engleski jezik<br>
+                            <strong>Petak 19:00</strong> - Hrvatski jezik<br>
+                            <strong>Subota 19:00</strong> - Hrvatski i Engleski jezik<br>
+                            <strong>Nedjelja 16:00</strong> - Hrvatski jezik
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item">
+                          <q-icon name="phone" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Telefon</h6>
+                          <p>
+                            <a href="tel:+385919558993" class="text-primary text-h6">+385 91 955 89 93</a>
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Map -->
+                      <div class="col-12 col-md-6">
+                        <div class="google-map">
+                          <iframe
+                            frameborder="0"
+                            style="border:0; height:100%; width:100%; min-height:400px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2782.199708794448!2d15.926057876620408!3d45.78722661182746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765d6a8cab7f85b%3A0xff627c73c1e1b7f9!2sCrkva%20sv.%20Mati%20Slobode!5e0!3m2!1shr!2shr!4v1738098238082!5m2!1shr!2shr"
+                            allowfullscreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+
+              <!-- Poreč -->
+              <q-expansion-item
+                v-model="liveMeetings.porec"
+                icon="place"
+                label="Poreč"
+                header-class="text-weight-bold text-h6"
+              >
+                <q-card>
+                  <q-card-section>
+                    <div class="row q-col-gutter-md">
+                      <div class="col-12 col-md-6">
+                        <h6 class="text-h6 text-weight-bold q-mb-md">
+                          Eufrazijeva ul. 22<br>
+                          52440 Poreč
+                        </h6>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="email" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Email</h6>
+                          <p>
+                            <a href="mailto:tukamiami@hotmail.com" class="text-primary text-h6">tukamiami@hotmail.com</a>
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item">
+                          <q-icon name="phone" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Telefon</h6>
+                          <p>
+                            <a href="tel:+385916136885" class="text-primary text-h6">+385 91 613 68 85</a>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="google-map">
+                          <iframe
+                            frameborder="0"
+                            style="border:0; height:100%; width:100%; min-height:400px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2809.9455188940296!2d13.59064527659655!3d45.22866974912251!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x477c97769c96e475%3A0xb90679a404b53e5!2sEufrazijeva%20ul.%2022%2C%2052440%2C%20Pore%C4%8D!5e0!3m2!1shr!2shr!4v1738096637111!5m2!1shr!2shr"
+                            allowfullscreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+
+              <!-- Aljmaš -->
+              <q-expansion-item
+                v-model="liveMeetings.aljmas"
+                icon="place"
+                label="Aljmaš"
+                header-class="text-weight-bold text-h6"
+              >
+                <q-card>
+                  <q-card-section>
+                    <div class="row q-col-gutter-md">
+                      <div class="col-12 col-md-6">
+                        <h6 class="text-h6 text-weight-bold q-mb-md">
+                          Dom Zdravlja Aljmaš<br>
+                          Zlatna ul. 6, 31205 Aljmaš
+                        </h6>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="email" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Email</h6>
+                          <p>
+                            <a href="mailto:aaivica@gmail.com" class="text-primary text-h6">aaivica@gmail.com</a>
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item">
+                          <q-icon name="phone" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Telefon</h6>
+                          <p>
+                            <a href="tel:+385989545257" class="text-primary text-h6">+385 98 954 52 57</a>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="google-map">
+                          <iframe
+                            frameborder="0"
+                            style="border:0; height:100%; width:100%; min-height:400px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2795.0798003221144!2d18.94559867677838!3d45.52859967107517!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x475c9545f48b51e1%3A0x24c5b72a6a3e206e!2sZlatna%20ul.%206%2C%2031205%2C%20Aljma%C5%A1!5e0!3m2!1shr!2shr!4v1738096468438!5m2!1shr!2shr"
+                            allowfullscreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+
+              <!-- Zaprešić -->
+              <q-expansion-item
+                v-model="liveMeetings.zapresic"
+                icon="place"
+                label="Zaprešić"
+                header-class="text-weight-bold text-h6"
+              >
+                <q-card>
+                  <q-card-section>
+                    <div class="row q-col-gutter-md">
+                      <div class="col-12 col-md-6">
+                        <h6 class="text-h6 text-weight-bold q-mb-md">
+                          Crkva Marija Kraljica Apostola<br>
+                          Trg Dr. Franje Tuđmana 10, 10290, Zaprešić
+                        </h6>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="groups" size="50px" color="deep-orange-5" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Sastanci</h6>
+                          <p class="meeting-schedule">
+                            <strong>Ponedjeljak 18:30</strong> - Hrvatski jezik<br>
+                            <strong>Srijeda 18:30</strong> - Hrvatski jezik
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item">
+                          <q-icon name="phone" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Telefon</h6>
+                          <p>
+                            <a href="tel:+385912805973" class="text-primary text-h6">+385 91 280 59 73</a>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="google-map">
+                          <iframe
+                            frameborder="0"
+                            style="border:0; height:100%; width:100%; min-height:400px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2778.998821917049!2d15.793410976623901!3d45.8703268062492!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4765cf7a1a0706fd%3A0xa2e4f71e20f74550!2sCrkva%20Marija%20Kraljica%20Apostola!5e0!3m2!1shr!2shr!4v1759839413708!5m2!1shr!2shr"
+                            allowfullscreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+
+              <!-- Split -->
+              <q-expansion-item
+                v-model="liveMeetings.split"
+                icon="place"
+                label="Split"
+                header-class="text-weight-bold text-h6"
+              >
+                <q-card>
+                  <q-card-section>
+                    <div class="row q-col-gutter-md">
+                      <div class="col-12 col-md-6">
+                        <h6 class="text-h6 text-weight-bold q-mb-md">
+                          Grupa <strong>The Promises</strong><br><br>
+                          Šetalište Bačvice 10<br>
+                          21000 Split
+                        </h6>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="groups" size="50px" color="deep-orange-5" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Sastanci</h6>
+                          <p class="meeting-schedule">
+                            <strong>Utorak 20:30</strong><br>
+                            <strong>Četvrtak 20:30</strong><br>
+                            <strong>Subota 19:00</strong><br>
+                            <strong>Nedjelja 19:00</strong>
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item q-mb-md">
+                          <q-icon name="email" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Email</h6>
+                          <p>
+                            <a href="mailto:mirelaj1@yahoo.com" class="text-primary text-h6">mirelaj1@yahoo.com</a>
+                          </p>
+                        </div>
+
+                        <div class="meeting-info-item">
+                          <q-icon name="phone" size="50px" color="primary" class="q-mb-sm" />
+                          <h6 class="text-weight-bold">Telefon</h6>
+                          <p>
+                            <a href="tel:+385917971272" class="text-primary text-h6">+385 91 797 12 72</a> (Mia)
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="google-map">
+                          <iframe
+                            frameborder="0"
+                            style="border:0; height:100%; width:100%; min-height:400px;"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2893.9158418747884!2d16.44425227652456!3d43.50409116206152!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x133560a9f95e8b45%3A0xc6e63f593cf1ed84!2zxaBldGFsacWhdGUgQmHEjXZpY2UgMTAsIDIxMDAwLCBTcGxpdA!5e0!3m2!1shr!2shr!4v1759839508421!5m2!1shr!2shr"
+                            allowfullscreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-expansion-item>
+            </q-list>
+          </div>
+        </div>
+      </div>
+    </section>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import ResponsiveCarousel from 'src/components/ResponsiveCarousel.vue';
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Autoplay, Pagination, Keyboard } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import { usePageNavigation } from 'src/composables/usePageNavigation';
+
+// Page navigation
+const { handleSwipe } = usePageNavigation();
+
+// Swiper modules
+const swiperModules = [Autoplay, Pagination, Keyboard];
+
+// Swiper refs and progress circles
+const swiperRef = ref(null);
+const progressCircle = ref<SVGSVGElement | null>(null);
+const grupeSwiperRef = ref(null);
+const grupeProgressCircle = ref<SVGSVGElement | null>(null);
+const grupeProgressContent = ref<HTMLSpanElement | null>(null);
+
+// Autoplay progress handler for shortcuts
+const onAutoplayTimeLeft = (_swiper: unknown, _time: number, progress: number) => {
+  if (progressCircle.value) {
+    progressCircle.value.style.setProperty('--progress', String(1 - progress));
+  }
+};
+
+// Autoplay progress handler for grupe
+const onGrupeAutoplayTimeLeft = (_swiper: unknown, _time: number, progress: number) => {
+  if (grupeProgressCircle.value) {
+    grupeProgressCircle.value.style.setProperty('--progress', String(1 - progress));
+  }
+};
+
+// Live meetings expansion state
+const liveMeetings = ref({
+  zagreb: false,
+  porec: false,
+  aljmas: false,
+  zapresic: false,
+  split: false,
+});
 
 const videoPlayer = ref<HTMLVideoElement | null>(null);
 
@@ -212,60 +691,79 @@ const resetVideo = () => {
 
 const shortcutCards = [
   {
-    icon: 'info',
-    title: 'Informacije',
-    description: 'Saznajte više o AA-u',
-    buttonLabel: 'Pročitaj',
-    link: '/informacije',
-  },
-  {
-    icon: 'library_books',
-    title: 'Literatura',
-    description: 'Pristupite našoj knjižnici',
-    buttonLabel: 'Čitaj',
+    slideClass: 'slide-1',
+    bgClass: 'bg-1',
+    imageClass: 'ci-1',
+    text: 'A.A. literatura predstavlja izvor inspiracije za oporavak alkoholičara.',
+    buttonLabel: 'Literatura',
     link: '/literatura',
   },
   {
-    icon: 'people',
-    title: 'O nama',
-    description: 'Upoznajte našu zajednicu',
-    buttonLabel: 'Saznaj',
-    link: '/o-nama',
+    slideClass: 'slide-6',
+    bgClass: 'bg-6',
+    imageClass: 'ci-6',
+    text: 'Dnevna razmatranja su sinteza literature i živog iskustva A.A. - svakog dana u godini...',
+    buttonLabel: 'Dnevna Razmatranja',
+    link: '/literatura#Dnevna-Razmatranja',
   },
   {
-    icon: 'help',
-    title: 'Pomoć',
-    description: 'Trebate pomoć?',
-    buttonLabel: 'Kontaktiraj',
-    link: '/help',
+    slideClass: 'slide-2',
+    bgClass: 'bg-2',
+    imageClass: 'ci-2',
+    text: 'Jučer ne možemo promijeniti a sutra nam još ne pripada. Trijezni smo "samo danas".',
+    buttonLabel: 'Kalkulator trijeznosti',
+    link: '/o-nama#calculator-button',
   },
   {
-    icon: 'video_call',
-    title: 'Zoom Sastanci',
-    description: 'Pridružite se online',
-    buttonLabel: 'Priključi se',
-    link: '/informacije',
+    slideClass: 'slide-4',
+    bgClass: 'bg-4',
+    imageClass: 'ci-4',
+    text: 'A.A. su g.1935 utemeljila dva alkoholičara - Bill Wilson iz New Yorka i Dr. Bob Smith iz Ohia.',
+    buttonLabel: 'Povijest AA',
+    link: '/informacije#osnivanje-naslov',
   },
   {
-    icon: 'location_on',
-    title: 'Pronađi Sastanak',
-    description: 'Lokalni sastanci',
-    buttonLabel: 'Pretraži',
-    link: '/informacije',
+    slideClass: 'slide-5',
+    bgClass: 'bg-5',
+    imageClass: 'ci-5',
+    text: 'Anonimnost kao duhovni temelj A.A. pruža zaštitu članovima od socialnog stigmatiziranja.',
+    buttonLabel: 'Anonimnost u AA',
+    link: '/informacije#anonimnost-naslov',
   },
   {
-    icon: 'phone',
-    title: 'Kontaktiraj Nas',
-    description: 'Pozovi nas sada',
-    buttonLabel: 'Pozovi',
-    link: '/help',
+    slideClass: 'slide-7',
+    bgClass: 'bg-7',
+    imageClass: 'ci-7',
+    text: 'Česta pitanja u vezi Anonimnih Alkoholičara i odgovori na ta pitanja.',
+    buttonLabel: 'Pitanja i odgovori',
+    link: '/informacije#pitanja-i-odgovori',
+  },
+];
+
+const grupeCards = [
+  {
+    title: 'Beograd',
+    note: 'Navečer',
+    schedule: 'Svaki dan: 20:00<br>Subota: 20:00 (Novodošli)',
+    link: 'https://us04web.zoom.us/j/415149688',
   },
   {
-    icon: 'mail',
-    title: 'Pošalji Poruku',
-    description: 'Kontaktiraj nas',
-    buttonLabel: 'Pošalji',
-    link: '/help',
+    title: 'Beograd',
+    note: 'Ujutro',
+    schedule: 'Ponedjeljak: 10:00<br>Srijeda: 10:00<br>Subota: 10:15',
+    link: 'https://us02web.zoom.us/j/81250567176',
+  },
+  {
+    title: 'Sarajevo',
+    note: '',
+    schedule: 'Srijeda: 18:45<br>Petak: 10:00',
+    link: 'https://us04web.zoom.us/j/84990206475',
+  },
+  {
+    title: 'Subotica',
+    note: '',
+    schedule: 'Četvrtak: 17:00',
+    link: 'https://us02web.zoom.us/j/9533651427?pwd=eEJaRTBIS0llTjRLd2czSFFzVkZFQT09',
   },
 ];
 </script>
@@ -469,39 +967,162 @@ const shortcutCards = [
 }
 
 .carousel-section {
-  padding: var(--spacing-2xl) var(--spacing-lg);
+  padding: 0 0; // Remove horizontal padding for full width
   background-color: var(--bg-secondary);
 
   .section-container {
     max-width: 100%;
+    padding: 0; // Remove padding
+  }
+
+  h2 {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    padding: 0 var(--spacing-lg); // Add padding only to heading
   }
 }
 
-.shortcut-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: var(--carousel-item-height, 280px);
-  width: var(--carousel-item-width, 280px);
-  min-width: var(--carousel-item-width, 280px);
-  max-width: var(--carousel-item-width, 280px);
-  flex-shrink: 0;
+// Swiper wrapper with autoplay progress
+.shortcuts-swiper-wrapper {
+  position: relative;
+  width: 100vw; // Full viewport width
+  margin-left: calc(-50vw + 50%); // Center full-width element
 }
 
-.card-content {
-  text-align: center;
-  padding: var(--spacing-lg);
-  background-color: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+// Swiper styles - matching old site design
+.shortcuts-swiper {
+  height: 450px;
   width: 100%;
-  height: 100%;
+  padding-bottom: 50px;
+
+  :deep(.swiper-slide) {
+    position: relative;
+    background: #EDEAE2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // Override card-image top position to push content down
+  :deep(.card-image) {
+    top: 40px !important; // Increased from 20px to push content down
+  }
+
+  // Adjust card-text-div bottom position accordingly
+  :deep(.card-text-div) {
+    bottom: 110px !important; // Adjusted to maintain spacing
+  }
+
+  // Adjust card-button bottom position accordingly
+  :deep(.card-button) {
+    bottom: 45px !important; // Adjusted to maintain spacing
+  }
+
+  :deep(.swiper-pagination) {
+    bottom: 10px;
+  }
+
+  :deep(.swiper-pagination-bullet) {
+    margin-left: 8px;
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  :deep(.swiper-pagination-bullet-active) {
+    background-color: #146C94;
+  }
+}
+
+// Autoplay progress indicator (circular timer)
+.autoplay-progress {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  font-weight: bold;
+  color: #1B475B;
+  opacity: 0.3;
+
+  svg {
+    --progress: 0;
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    stroke-width: 4px;
+    stroke: #1B475B;
+    opacity: 0.4;
+    fill: none;
+    stroke-dashoffset: calc(125.6px * (1 - var(--progress)));
+    stroke-dasharray: 125.6;
+    transform: rotate(-90deg);
+  }
+}
+
+// Grupe Swiper Section
+.grupe-swiper-section {
+  padding: 0 0;
+  background-color: var(--bg-secondary);
+}
+
+.grupe-swiper-wrapper {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
+.grupe-swiper {
+  height: 450px;
+  width: 100%;
+  padding-bottom: 50px;
+
+  :deep(.swiper-slide) {
+    position: relative;
+    background: #EDEAE2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // Override card-image top position to push content down
+  :deep(.card-image) {
+    top: 40px !important; // Increased from 20px to push content down
+  }
+
+  // Adjust card-text-div bottom position accordingly
+  :deep(.card-text-div) {
+    bottom: 110px !important; // Adjusted to maintain spacing
+  }
+
+  // Adjust card-button bottom position accordingly
+  :deep(.card-button) {
+    bottom: 45px !important; // Adjusted to maintain spacing
+  }
+
+  :deep(.swiper-pagination) {
+    bottom: 10px;
+  }
+
+  :deep(.swiper-pagination-bullet) {
+    margin-left: 8px;
+    margin-right: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  :deep(.swiper-pagination-bullet-active) {
+    background-color: #146C94;
+  }
 }
 
 .contact-grid {
@@ -564,6 +1185,56 @@ h2 {
 .sastanci {
   font-size: var(--font-size-4xl);
   color: var(--q-primary);
+}
+
+.grupa-naslov{
+  font-family: "Roboto Condensed", sans-serif;
+  font-size: 80%;
+  line-height: 1.2;
+}
+.note{
+  font-family: "Roboto Condensed", sans-serif;
+}
+
+// Live Meetings Section
+.live-meetings-expandable {
+  :deep(.q-item) {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-md);
+    background-color: white;
+  }
+
+  :deep(.q-expansion-item__container) {
+    border-radius: var(--radius-md);
+  }
+
+  .meeting-info-item {
+    text-align: center;
+
+    h6 {
+      margin-top: var(--spacing-sm);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .meeting-schedule {
+    text-align: left;
+    line-height: 1.8;
+  }
+
+  .google-map {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* Sastanci section layout: image on top on mobile, on right on desktop/tablet */
