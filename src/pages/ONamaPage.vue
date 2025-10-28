@@ -1,6 +1,10 @@
 <template>
   <q-page class="o-nama-page">
-    <section id="header" class="hero-section">
+    <section
+      id="header"
+      class="hero-section"
+      v-touch-swipe.mouse.horizontal="handleSwipe"
+    >
       <div class="hero-content">
         <h1>O nama</h1>
         <p>Saznajte više o AA zajednici</p>
@@ -87,6 +91,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { usePageNavigation } from 'src/composables/usePageNavigation';
+
+// Page navigation
+const { handleSwipe } = usePageNavigation();
 
 const sobrietyDate = ref('');
 

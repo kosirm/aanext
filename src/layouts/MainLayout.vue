@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fff" class="main-layout" v-touch-swipe.mouse.horizontal="handleSwipe">
+  <q-layout view="hHh lpR fff" class="main-layout">
     <!-- App Header -->
     <AppHeader />
 
@@ -47,7 +47,6 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { useNavigationStore } from 'src/stores/navigation';
 import { useUiStore } from 'src/stores/ui';
 import AppHeader from 'components/AppHeader.vue';
 import LeftDrawer from 'components/LeftDrawer.vue';
@@ -55,42 +54,7 @@ import RightDrawer from 'components/RightDrawer.vue';
 import AppFooter from 'components/AppFooter.vue';
 
 const router = useRouter();
-const navigationStore = useNavigationStore();
 const uiStore = useUiStore();
-
-interface SwipeEvent {
-  evt?: Event;
-  touch?: boolean;
-  mouse?: boolean;
-  direction?: 'left' | 'right' | 'up' | 'down';
-  duration?: number;
-  distance?: { x?: number; y?: number };
-}
-
-const handleSwipe = (info: SwipeEvent) => {
-  // Only handle swipe on main pages
-  if (!navigationStore.isMainPage(navigationStore.currentPage)) {
-    return;
-  }
-
-  // Check if swipe is on a carousel (has data-carousel attribute)
-  if (info.evt) {
-    const target = info.evt.target as HTMLElement;
-    if (target.closest('[data-carousel]')) {
-      return; // Let carousel handle the swipe
-    }
-  }
-
-  if (info.direction === 'left') {
-    navigationStore.nextPage();
-    const nextPageName = navigationStore.currentPage;
-    void router.push(`/${nextPageName === 'index' ? '' : nextPageName}`);
-  } else if (info.direction === 'right') {
-    navigationStore.previousPage();
-    const prevPageName = navigationStore.currentPage;
-    void router.push(`/${prevPageName === 'index' ? '' : prevPageName}`);
-  }
-};
 
 const getNotificationIcon = (type: string): string => {
   const icons: Record<string, string> = {
