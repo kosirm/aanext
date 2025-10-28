@@ -1,6 +1,7 @@
 import { useRouter } from 'vue-router';
 import { nextTick } from 'vue';
 import { useBooksStore } from 'src/stores/books';
+import { useNavigationStore } from 'src/stores/navigation';
 import type { NavigationTarget } from 'src/types/book';
 
 /**
@@ -11,6 +12,7 @@ import type { NavigationTarget } from 'src/types/book';
 export const useNavigateToContent = () => {
   const router = useRouter();
   const booksStore = useBooksStore();
+  const navigationStore = useNavigationStore();
 
   /**
    * Navigate to a specific content location
@@ -19,6 +21,9 @@ export const useNavigateToContent = () => {
    */
   const navigateTo = async (target: NavigationTarget): Promise<boolean> => {
     try {
+      // Start fade animation
+      navigationStore.isNavigating = true;
+
       if (target.type === 'dnevna_razmatranja') {
         const success = await navigateToDnevna(target.date || '');
         if (success && target.textToHighlight) {
@@ -34,6 +39,8 @@ export const useNavigateToContent = () => {
             await scrollToHighlight(highlightId);
           }
         }
+        // End fade animation
+        navigationStore.isNavigating = false;
         return success;
       } else if (target.type === 'book') {
         const success = await navigateToBook(target.bookId || '', target.chapterId || '');
@@ -50,11 +57,17 @@ export const useNavigateToContent = () => {
             await scrollToHighlight(highlightId);
           }
         }
+        // End fade animation
+        navigationStore.isNavigating = false;
         return success;
       }
+      // End fade animation
+      navigationStore.isNavigating = false;
       return false;
     } catch (error) {
       console.error('Navigation error:', error);
+      // End fade animation on error
+      navigationStore.isNavigating = false;
       return false;
     }
   };
