@@ -771,6 +771,7 @@ const grupeCards = [
 <style scoped lang="scss">
 .index-page {
   padding: 0;
+  overflow-x: hidden; // Prevent horizontal scrollbar
 
   /* Hero Section Styles */
   /* Problem Section Styles */
@@ -985,8 +986,11 @@ const grupeCards = [
 // Swiper wrapper with autoplay progress
 .shortcuts-swiper-wrapper {
   position: relative;
-  width: 100vw; // Full viewport width
-  margin-left: calc(-50vw + 50%); // Center full-width element
+  width: 100%; // Use 100% instead of 100vw to avoid scrollbar issues
+  max-width: 100vw; // Ensure it doesn't exceed viewport
+  margin-left: 0; // Remove the centering calculation
+  left: 50%; // Center using transform
+  transform: translateX(-50%); // Center using transform
 }
 
 // Swiper styles - matching old site design
@@ -1076,8 +1080,11 @@ const grupeCards = [
 
 .grupe-swiper-wrapper {
   position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
+  width: 100%; // Use 100% instead of 100vw to avoid scrollbar issues
+  max-width: 100vw; // Ensure it doesn't exceed viewport
+  margin-left: 0; // Remove the centering calculation
+  left: 50%; // Center using transform
+  transform: translateX(-50%); // Center using transform
   background-color: var(--bg-primary);
 }
 

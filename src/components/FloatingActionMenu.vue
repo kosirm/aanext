@@ -11,7 +11,7 @@
         round
         dense
         size="md"
-        title="Dodaj bookmark"
+        title="Dodaj oznaku"
         @click="handleBookmark"
         class="action-btn"
       />

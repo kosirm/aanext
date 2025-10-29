@@ -4,132 +4,169 @@
     side="right"
     overlay
     elevated
+    :width="180"
     class="right-drawer"
   >
     <!-- Drawer Header -->
     <q-toolbar class="drawer-header">
-      <q-toolbar-title>Alati stranice</q-toolbar-title>
+      <q-icon name="build" size="sm" class="q-mr-sm" />
       <q-btn
         flat
         dense
         round
         icon="close"
         @click="navigationStore.toggleRightDrawer()"
+        class="q-ml-auto"
       />
     </q-toolbar>
 
-    <!-- Tabs -->
-    <q-tabs
-      v-model="navigationStore.rightDrawerTab"
-      dense
-      class="text-primary"
-      active-color="primary"
-      indicator-color="primary"
-    >
-      <q-tab name="navigation" icon="list" />
-      <q-tab name="tools" icon="bookmark" />
-    </q-tabs>
+    <!-- Tools List -->
+    <q-list>
+      <q-item
+        clickable
+        @click="openBookmarkManager"
+      >
+        <q-item-section avatar>
+          <q-icon name="bookmark" />
+        </q-item-section>
+        <q-item-section>
+          Oznake
+        </q-item-section>
+      </q-item>
 
-    <!-- Tab Panels -->
-    <q-tab-panels v-model="navigationStore.rightDrawerTab" animated>
-      <!-- Navigation Tab -->
-      <q-tab-panel name="navigation" class="q-pa-none">
-        <q-list>
-          <q-item
-            v-for="section in pageSections"
-            :key="section.id"
-            clickable
-            @click="scrollToSection(section.id)"
-          >
-            <q-item-section avatar>
-              <q-icon :name="section.icon" />
-            </q-item-section>
-            <q-item-section>
-              {{ section.label }}
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-tab-panel>
+      <q-item
+        clickable
+        @click="openSobrietyCalculator"
+      >
+        <q-item-section avatar>
+          <q-icon name="calculate" />
+        </q-item-section>
+        <q-item-section>
+          Kalkulator
+        </q-item-section>
+      </q-item>
 
-      <!-- Tools Tab -->
-      <q-tab-panel name="tools" class="q-pa-none">
-        <div class="tools-content">
-          <!-- Bookmark Manager - always available on all pages -->
+      <q-item
+        clickable
+        @click="openThemeSettings"
+      >
+        <q-item-section avatar>
+          <q-icon name="palette" />
+        </q-item-section>
+        <q-item-section>
+          Teme
+        </q-item-section>
+      </q-item>
+
+      <q-item
+        clickable
+        @click="forceUpdate"
+      >
+        <q-item-section avatar>
+          <q-icon name="refresh" />
+        </q-item-section>
+        <q-item-section>
+          Ažuriranje
+        </q-item-section>
+      </q-item>
+    </q-list>
+
+    <!-- Bookmark Manager Modal -->
+    <q-dialog v-model="showBookmarkManager" maximized>
+      <q-card>
+        <q-toolbar class="bg-primary text-white">
+          <q-toolbar-title>Upravitelj oznaka</q-toolbar-title>
+          <q-btn
+            flat
+            dense
+            round
+            icon="close"
+            @click="showBookmarkManager = false"
+          />
+        </q-toolbar>
+        <q-card-section class="q-pa-none">
           <BookmarkManager />
-          <!-- Other tools via slot -->
-          <slot name="tools">
-          </slot>
-        </div>
-      </q-tab-panel>
-    </q-tab-panels>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Theme Manager Modal -->
+    <q-dialog v-model="showThemeManager" position="bottom">
+      <q-card style="width: 100%; max-width: 900px; max-height: 80vh;">
+        <q-toolbar class="bg-primary text-white">
+          <q-toolbar-title>Upravljanje temama</q-toolbar-title>
+          <q-btn
+            flat
+            dense
+            round
+            icon="close"
+            @click="showThemeManager = false"
+          />
+        </q-toolbar>
+        <q-card-section class="scroll" style="max-height: calc(80vh - 50px);">
+          <ThemeManager />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-drawer>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref } from 'vue';
 import { useNavigationStore } from 'src/stores/navigation';
+import { useQuasar } from 'quasar';
 import BookmarkManager from './BookmarkManager.vue';
-
-interface PageSection {
-  id: string;
-  label: string;
-  icon: string;
-}
+import ThemeManager from './ThemeManager.vue';
 
 const navigationStore = useNavigationStore();
+const $q = useQuasar();
 
-// Define sections for each page
-const sectionsByPage: Record<string, PageSection[]> = {
-  index: [
-    { id: 'problem', label: 'Problem', icon: 'warning' },
-    { id: 'solution', label: 'Rješenje', icon: 'lightbulb' },
-    { id: 'meetings', label: 'Sastanci', icon: 'event' },
-    { id: 'contact', label: 'Kontakt', icon: 'phone' },
-  ],
-  informacije: [
-    { id: 'about', label: 'O nama', icon: 'info' },
-    { id: 'founding', label: 'Osnivanje', icon: 'history' },
-    { id: 'anonymity', label: 'Anonimnost', icon: 'privacy_tip' },
-    { id: 'faq', label: 'Pitanja', icon: 'help' },
-  ],
-  literatura: [
-    { id: 'daily', label: 'Dnevna razmatranja', icon: 'calendar_today' },
-    { id: 'library', label: 'Čitaonica', icon: 'library_books' },
-  ],
-  'o-nama': [
-    { id: 'calculator', label: 'Kalkulator', icon: 'calculate' },
-    { id: 'prayer', label: 'Molitva', icon: 'favorite' },
-    { id: 'news', label: 'Vijesti', icon: 'newspaper' },
-    { id: 'links', label: 'Povezave', icon: 'link' },
-  ],
+// State for modals
+const showBookmarkManager = ref(false);
+const showThemeManager = ref(false);
+
+// Tool actions
+const openBookmarkManager = () => {
+  navigationStore.toggleRightDrawer();
+  showBookmarkManager.value = true;
 };
 
-const pageSections = computed(() => {
-  return sectionsByPage[navigationStore.currentPage] || [];
-});
-
-const scrollToSection = (sectionId: string) => {
-  const element = document.getElementById(sectionId);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth' });
-    navigationStore.toggleRightDrawer();
-  }
+const openSobrietyCalculator = () => {
+  navigationStore.toggleRightDrawer();
+  // TODO: Implement sobriety calculator modal
+  $q.notify({
+    message: 'Kalkulator trijeznosti - uskoro dostupno',
+    color: 'info',
+    position: 'top',
+  });
 };
+
+const openThemeSettings = () => {
+  navigationStore.toggleRightDrawer();
+  showThemeManager.value = true;
+};
+
+const forceUpdate = () => {
+  navigationStore.toggleRightDrawer();
+  // TODO: Implement force update functionality
+  $q.notify({
+    message: 'Ažuriranje stranice - uskoro dostupno',
+    color: 'info',
+    position: 'top',
+  });
+};
+
 </script>
 
 <style scoped lang="scss">
 .right-drawer {
-  width: 280px;
+  width: 220px;
   z-index: 2000 !important;
 }
 
 .drawer-header {
   background-color: var(--color-primary);
   color: white;
-}
-
-.tools-content {
-  padding: var(--spacing-md);
 }
 </style>
 

@@ -119,7 +119,7 @@
     <div v-else class="empty-state">
       <q-icon name="bookmark_border" size="48px" />
       <p>Nema oznaka</p>
-      <p class="text-caption">Odaberi tekst u knjizi ili dnevnim razmatrajima da kreneš</p>
+      <p class="text-caption">Odaberi tekst u knjizi ili dnevnim razmatrajima i kreiraj oznaku.</p>
     </div>
 
     <!-- Import/Export Dialog -->
@@ -423,6 +423,14 @@ const importBookmarks = () => {
 
   p {
     margin: var(--spacing-md) 0 0 0;
+  }
+
+  .text-caption {
+    font-size: var(--font-size-sm);
+    text-align: center;
+    padding-top: 30px;
+    max-width: 80%;
+    margin: auto;
   }
 }
 </style>
