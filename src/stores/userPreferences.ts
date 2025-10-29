@@ -3,25 +3,48 @@ import { ref, computed } from 'vue';
 
 export const useUserPreferencesStore = defineStore('userPreferences', () => {
   // State
-  const theme = ref<'light' | 'dark' | 'auto'>('auto');
+  const themeMode = ref<'light' | 'dark'>('light');
+  const themeName = ref<string>('default');
   const fontSize = ref<'small' | 'normal' | 'large'>('normal');
   const sobrietyDate = ref<string | null>(null);
 
   // Load from localStorage on initialization
   const loadPreferences = () => {
-    const savedTheme = localStorage.getItem('aa-theme') as 'light' | 'dark' | 'auto' | null;
+    const savedThemeMode = localStorage.getItem('aa-themeMode') as 'light' | 'dark' | null;
+    const savedThemeName = localStorage.getItem('aa-themeName');
     const savedFontSize = localStorage.getItem('aa-fontSize') as 'small' | 'normal' | 'large' | null;
     const savedSobrietyDate = localStorage.getItem('aa-sobrietyDate');
 
-    if (savedTheme) theme.value = savedTheme;
+    if (savedThemeMode) themeMode.value = savedThemeMode;
+    if (savedThemeName) themeName.value = savedThemeName;
     if (savedFontSize) fontSize.value = savedFontSize;
     if (savedSobrietyDate) sobrietyDate.value = savedSobrietyDate;
+
+    // Apply theme on load
+    applyTheme();
+  };
+
+  // Apply theme to document
+  const applyTheme = () => {
+    document.documentElement.setAttribute('data-theme', themeName.value);
+    document.documentElement.setAttribute('data-mode', themeMode.value);
   };
 
   // Setters with localStorage persistence
-  const setTheme = (newTheme: 'light' | 'dark' | 'auto') => {
-    theme.value = newTheme;
-    localStorage.setItem('aa-theme', newTheme);
+  const setThemeMode = (newMode: 'light' | 'dark') => {
+    themeMode.value = newMode;
+    localStorage.setItem('aa-themeMode', newMode);
+    applyTheme();
+  };
+
+  const setThemeName = (newTheme: string) => {
+    themeName.value = newTheme;
+    localStorage.setItem('aa-themeName', newTheme);
+    applyTheme();
+  };
+
+  const toggleThemeMode = () => {
+    setThemeMode(themeMode.value === 'light' ? 'dark' : 'light');
   };
 
   const setFontSize = (newSize: 'small' | 'normal' | 'large') => {
@@ -66,12 +89,16 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
 
   return {
     // State
-    theme,
+    themeMode,
+    themeName,
     fontSize,
     sobrietyDate,
     // Methods
     loadPreferences,
-    setTheme,
+    setThemeMode,
+    setThemeName,
+    toggleThemeMode,
+    applyTheme,
     setFontSize,
     setSobrietyDate,
     // Computed

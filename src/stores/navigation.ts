@@ -11,8 +11,6 @@ export const useNavigationStore = defineStore('navigation', () => {
   const currentPage = ref<PageName>('index');
   const leftDrawerOpen = ref(false);
   const rightDrawerOpen = ref(false);
-  const leftDrawerTab = ref<'navigation' | 'tools'>('navigation');
-  const rightDrawerTab = ref<'navigation' | 'tools'>('navigation');
   const isNavigating = ref(false);
 
   // Setters
@@ -26,14 +24,6 @@ export const useNavigationStore = defineStore('navigation', () => {
 
   const toggleRightDrawer = () => {
     rightDrawerOpen.value = !rightDrawerOpen.value;
-  };
-
-  const setLeftDrawerTab = (tab: 'navigation' | 'tools') => {
-    leftDrawerTab.value = tab;
-  };
-
-  const setRightDrawerTab = (tab: 'navigation' | 'tools') => {
-    rightDrawerTab.value = tab;
   };
 
   const closeDrawers = () => {
@@ -71,15 +61,11 @@ export const useNavigationStore = defineStore('navigation', () => {
     currentPage,
     leftDrawerOpen,
     rightDrawerOpen,
-    leftDrawerTab,
-    rightDrawerTab,
     isNavigating,
     // Methods
     setCurrentPage,
     toggleLeftDrawer,
     toggleRightDrawer,
-    setLeftDrawerTab,
-    setRightDrawerTab,
     closeDrawers,
     nextPage,
     previousPage,

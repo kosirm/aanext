@@ -43,6 +43,7 @@ Can you please study git folder to understand the structure, style, etc. of the 
 Please make a working plan, which we should discuss and agree on before you start working on the site.
 
 Localstorage:
+- name
 - sobriety date
 - theme
 - font size
@@ -52,22 +53,6 @@ Localstorage:
 - last page navigated
 
 
-Book structure:
-- bookId
-- bookTitle
-- bookSubtitle
-- cover
-- description
-- entries
-  - bookPartTitle
-  - bookPartSubtitle
-  - bookPartEntries
-  - entryId
-  - date
-  - title
-  - subtitle
-  - header
-  - text
-  - source
+
 
 
