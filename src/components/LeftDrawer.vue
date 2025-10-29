@@ -8,7 +8,7 @@
   >
     <!-- Drawer Header -->
     <q-toolbar class="drawer-header">
-      <q-toolbar-title>Meni</q-toolbar-title>
+      <q-toolbar-title>Navigacija</q-toolbar-title>
       <q-btn
         flat
         dense

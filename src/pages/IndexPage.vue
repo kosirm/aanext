@@ -1006,17 +1006,18 @@ const grupeCards = [
 
   // Override card-image top position to push content down
   :deep(.card-image) {
-    top: 40px !important; // Increased from 20px to push content down
+    top: 30px !important; // Increased from 20px to push content down
   }
 
   // Adjust card-text-div bottom position accordingly
   :deep(.card-text-div) {
-    bottom: 110px !important; // Adjusted to maintain spacing
+    padding-bottom: 0px;
+    bottom: 90px !important; // Adjusted to maintain spacing
   }
 
   // Adjust card-button bottom position accordingly
   :deep(.card-button) {
-    bottom: 45px !important; // Adjusted to maintain spacing
+    bottom: 25px !important; // Adjusted to maintain spacing
   }
 
   :deep(.swiper-pagination) {
@@ -1077,6 +1078,7 @@ const grupeCards = [
   position: relative;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
+  background-color: var(--bg-primary);
 }
 
 .grupe-swiper {
@@ -1095,17 +1097,18 @@ const grupeCards = [
 
   // Override card-image top position to push content down
   :deep(.card-image) {
-    top: 40px !important; // Increased from 20px to push content down
+    top: 30px !important; // Increased from 20px to push content down
   }
 
   // Adjust card-text-div bottom position accordingly
   :deep(.card-text-div) {
-    bottom: 110px !important; // Adjusted to maintain spacing
+    padding-bottom: 10px;
+    bottom: 90px !important; // Adjusted to maintain spacing
   }
 
   // Adjust card-button bottom position accordingly
   :deep(.card-button) {
-    bottom: 45px !important; // Adjusted to maintain spacing
+    bottom: 25px !important; // Adjusted to maintain spacing
   }
 
   :deep(.swiper-pagination) {
