@@ -108,6 +108,9 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Sobriety Calculator Modal -->
+    <SobrietyCalculator v-model="showSobrietyCalculator" />
   </q-drawer>
 </template>
 
@@ -117,6 +120,7 @@ import { useNavigationStore } from 'src/stores/navigation';
 import { useQuasar } from 'quasar';
 import BookmarkManager from './BookmarkManager.vue';
 import ThemeManager from './ThemeManager.vue';
+import SobrietyCalculator from './SobrietyCalculator.vue';
 
 const navigationStore = useNavigationStore();
 const $q = useQuasar();
@@ -124,6 +128,7 @@ const $q = useQuasar();
 // State for modals
 const showBookmarkManager = ref(false);
 const showThemeManager = ref(false);
+const showSobrietyCalculator = ref(false);
 
 // Tool actions
 const openBookmarkManager = () => {
@@ -133,12 +138,7 @@ const openBookmarkManager = () => {
 
 const openSobrietyCalculator = () => {
   navigationStore.toggleRightDrawer();
-  // TODO: Implement sobriety calculator modal
-  $q.notify({
-    message: 'Kalkulator trijeznosti - uskoro dostupno',
-    color: 'info',
-    position: 'top',
-  });
+  showSobrietyCalculator.value = true;
 };
 
 const openThemeSettings = () => {

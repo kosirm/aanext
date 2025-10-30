@@ -7,6 +7,8 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
   const themeName = ref<string>('default');
   const fontSize = ref<'small' | 'normal' | 'large'>('normal');
   const sobrietyDate = ref<string | null>(null);
+  const sobrietyName = ref<string | null>(null);
+  const sobrietyCoinType = ref<string>('godine_bronza');
 
   // Load from localStorage on initialization
   const loadPreferences = () => {
@@ -14,11 +16,15 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     const savedThemeName = localStorage.getItem('aa-themeName');
     const savedFontSize = localStorage.getItem('aa-fontSize') as 'small' | 'normal' | 'large' | null;
     const savedSobrietyDate = localStorage.getItem('aa-sobrietyDate');
+    const savedSobrietyName = localStorage.getItem('aa-sobrietyName');
+    const savedSobrietyCoinType = localStorage.getItem('aa-sobrietyCoinType');
 
     if (savedThemeMode) themeMode.value = savedThemeMode;
     if (savedThemeName) themeName.value = savedThemeName;
     if (savedFontSize) fontSize.value = savedFontSize;
     if (savedSobrietyDate) sobrietyDate.value = savedSobrietyDate;
+    if (savedSobrietyName) sobrietyName.value = savedSobrietyName;
+    if (savedSobrietyCoinType) sobrietyCoinType.value = savedSobrietyCoinType;
 
     // Apply theme on load
     applyTheme();
@@ -61,6 +67,39 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     }
   };
 
+  const setSobrietyName = (name: string | null) => {
+    sobrietyName.value = name;
+    if (name) {
+      localStorage.setItem('aa-sobrietyName', name);
+    } else {
+      localStorage.removeItem('aa-sobrietyName');
+    }
+  };
+
+  const setSobrietyCoinType = (coinType: string) => {
+    sobrietyCoinType.value = coinType;
+    localStorage.setItem('aa-sobrietyCoinType', coinType);
+  };
+
+  const setSobrietyData = (name: string, date: string, coinType: string) => {
+    setSobrietyName(name);
+    setSobrietyDate(date);
+    setSobrietyCoinType(coinType);
+  };
+
+  const clearSobrietyData = () => {
+    sobrietyName.value = null;
+    sobrietyDate.value = null;
+    sobrietyCoinType.value = 'godine_bronza';
+    localStorage.removeItem('aa-sobrietyName');
+    localStorage.removeItem('aa-sobrietyDate');
+    localStorage.removeItem('aa-sobrietyCoinType');
+  };
+
+  const hasSobrietyData = computed(() => {
+    return !!(sobrietyName.value && sobrietyDate.value);
+  });
+
   // Computed properties
   const sobrietyDays = computed(() => {
     if (!sobrietyDate.value) return null;
@@ -93,6 +132,8 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     themeName,
     fontSize,
     sobrietyDate,
+    sobrietyName,
+    sobrietyCoinType,
     // Methods
     loadPreferences,
     setThemeMode,
@@ -101,10 +142,15 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
     applyTheme,
     setFontSize,
     setSobrietyDate,
+    setSobrietyName,
+    setSobrietyCoinType,
+    setSobrietyData,
+    clearSobrietyData,
     // Computed
     sobrietyDays,
     sobrietyYearsMonthsDays,
     isMilestone,
+    hasSobrietyData,
   };
 });
 
