@@ -1,6 +1,6 @@
 [build]
   publish = "dist/pwa"
-  command = "npm install && npm run build"
+  command = "npm install && quasar build -m pwa"
 
 [build.environment]
   NODE_VERSION = "20"
