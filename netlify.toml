@@ -1,5 +1,4 @@
 [build]
-  base = "next/aahrvatska"
   publish = "dist/pwa"
   command = "npm install && npm run build"
 
