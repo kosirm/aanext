@@ -16,6 +16,9 @@
         <div class="app-title">AA Hrvatska</div>
       </q-toolbar-title>
 
+      <!-- Sobriety Badge (right side) -->
+      <SobrietyBadge v-if="userPreferences.sobrietyDate" class="right-badge" />
+
       <!-- Right Drawer Toggle -->
       <q-btn
         flat
@@ -26,9 +29,6 @@
         @click="navigationStore.toggleRightDrawer()"
       />
     </q-toolbar>
-
-    <!-- Sobriety Badge -->
-    <SobrietyBadge v-if="userPreferences.sobrietyDate" />
   </q-header>
 </template>
 
@@ -51,6 +51,10 @@ const userPreferences = useUserPreferencesStore();
   font-size: var(--font-size-xl);
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+
+.right-badge {
+  margin-right: var(--spacing-md);
 }
 
 :deep(.q-toolbar) {
