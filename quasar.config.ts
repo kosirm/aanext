@@ -103,9 +103,9 @@ export default defineConfig((ctx) => {
 
     // Quasar app extensions
     // https://v2.quasar.dev/app-extensions/list
-    app: {
-      extensions: ['@quasar/qmediaplayer'],
-    },
+    // app: {
+    //   extensions: [],
+    // },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
     framework: {
