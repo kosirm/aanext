@@ -104,45 +104,20 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - tell waiting service worker to skip waiting, then reload
-  const installUpdate = async () => {
+  // Install update - just reload the page
+  // The new service worker has already been activated automatically (via SKIP_WAITING)
+  const installUpdate = () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔄 INSTALLING UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`   Current version: ${currentVersion.value}`);
     console.log(`   Target version: ${latestVersion.value}`);
+    console.log('   Action: Reloading page...');
+    console.log('   (New service worker already activated)');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    try {
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.getRegistration();
-
-        if (registration && registration.waiting) {
-          console.log('   Step 1: Telling waiting service worker to skip waiting...');
-
-          // Listen for the controlling service worker change
-          navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('   Step 2: New service worker activated! Reloading page...');
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-            window.location.reload();
-          });
-
-          // Tell the waiting service worker to skip waiting
-          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-        } else {
-          console.log('   No waiting service worker found. Just reloading...');
-          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-          window.location.reload();
-        }
-      } else {
-        console.log('   Service Worker not supported. Just reloading...');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('❌ Error during update:', error);
-      console.log('   Fallback: Just reloading...');
-      window.location.reload();
-    }
+    // Just reload - the new service worker is already active
+    window.location.reload();
   };
 
   // Initialize on mount

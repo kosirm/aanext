@@ -207,7 +207,9 @@ export default defineConfig((ctx) => {
       // injectPwaMetaTags: false,
       // extendPWACustomSWConf (esbuildConf) {},
       extendGenerateSWOptions(cfg) {
-        cfg.skipWaiting = true;
+        // Set skipWaiting to false so Workbox adds the message listener automatically
+        // This allows us to call skipWaiting() manually via postMessage
+        cfg.skipWaiting = false;
         cfg.clientsClaim = true;
         cfg.runtimeCaching = [
           {

@@ -24,6 +24,37 @@ register(process.env.SERVICE_WORKER_FILE, {
   registered (registration) {
     console.log('✅ Service Worker: Registered - Service worker has been registered.');
     console.log('   Registration:', registration);
+
+    // Set up update detection like in the old site
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
+      if (installingWorker == null) {
+        return;
+      }
+
+      console.log('🔄 Service Worker: Update Found - New service worker is installing...');
+
+      installingWorker.onstatechange = () => {
+        console.log(`   Service Worker state changed to: ${installingWorker.state}`);
+
+        if (installingWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // There's an old service worker, tell the new one to skip waiting
+            console.log('   Telling new service worker to skip waiting...');
+            registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+            console.log('🎉 Service Worker: New version installed and activated!');
+
+            // Notify the app that an update is available
+            notifyUpdateAvailable();
+          } else {
+            // First install
+            console.log('✅ Service Worker: Content cached for offline use (first install).');
+          }
+        } else if (installingWorker.state === 'activated') {
+          console.log('✅ Service Worker: Activated - New version is now active.');
+        }
+      };
+    };
   },
 
   cached (registration) {
@@ -32,17 +63,13 @@ register(process.env.SERVICE_WORKER_FILE, {
   },
 
   updatefound (registration) {
-    console.log('🔄 Service Worker: Update Found - New content is downloading...');
+    console.log('🔄 Service Worker: Update Found (legacy callback)');
     console.log('   Registration:', registration);
   },
 
   updated (registration) {
-    console.log('🎉 Service Worker: Updated - New content is available!');
+    console.log('🎉 Service Worker: Updated (legacy callback)');
     console.log('   Registration:', registration);
-    console.log('   ⚠️  Page needs to reload to activate new version.');
-
-    // Notify the app that an update is available
-    notifyUpdateAvailable();
   },
 
   offline () {
