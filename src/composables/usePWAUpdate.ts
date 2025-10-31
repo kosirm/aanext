@@ -106,7 +106,7 @@ export function usePWAUpdate() {
 
   // Install update - just reload the page
   // The service worker with skipWaiting and clientsClaim will handle the rest
-  const installUpdate = async () => {
+  const installUpdate = () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔄 INSTALLING UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
