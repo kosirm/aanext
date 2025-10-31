@@ -3,6 +3,11 @@
 
 import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+// Read version from package.json
+const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const appVersion = packageJson.version;
 
 export default defineConfig((ctx) => {
   return {
@@ -53,7 +58,9 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        VITE_APP_VERSION: appVersion,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

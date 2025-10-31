@@ -16,7 +16,7 @@ get_current_version() {
     grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/'
 }
 
-# Function to bump version in package.json
+# Function to bump version in package.json and changelog.json
 bump_version() {
     local bump_type=$1
     local current_version=$(get_current_version)
@@ -47,6 +47,11 @@ bump_version() {
 
     # Update package.json
     sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+
+    # Update changelog.json currentVersion
+    if [ -f "public/changelog.json" ]; then
+        sed -i "s/\"currentVersion\": \"$current_version\"/\"currentVersion\": \"$new_version\"/" public/changelog.json
+    fi
 
     echo "$new_version"
 }
@@ -255,7 +260,7 @@ finish_task() {
         echo "✓ Version bumped: $old_version → $new_version"
 
         # Commit version bump
-        git add package.json
+        git add package.json public/changelog.json
         git commit -m "chore: bump version to $new_version"
     fi
 
@@ -307,7 +312,7 @@ quick_update() {
     echo "✓ Version bumped: $old_version → $new_version"
 
     # Commit version bump
-    git add package.json
+    git add package.json public/changelog.json
     git commit -m "chore: bump version to $new_version"
 
     # Push to remote
