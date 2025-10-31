@@ -66,10 +66,19 @@ export function usePWAUpdate() {
     }
   };
 
-  // Get current version from package.json (embedded at build time)
-  const getCurrentVersion = () => {
-    // This will be replaced at build time with actual version
-    return import.meta.env.VITE_APP_VERSION || '0.0.1';
+  // Get current version from changelog.json (always fresh from server)
+  const getCurrentVersion = async () => {
+    try {
+      // Fetch version.json with cache busting to get the actual deployed version
+      const response = await axios.get<{ version: string }>('/version.json', {
+        params: { t: Date.now() },
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      return response.data.version;
+    } catch (error) {
+      // Fallback to build-time version
+      return import.meta.env.VITE_APP_VERSION || '0.0.1';
+    }
   };
 
   // Compare versions (semantic versioning)
@@ -103,7 +112,7 @@ export function usePWAUpdate() {
       const changelogData = await loadChangelog();
 
       if (changelogData) {
-        const current = getCurrentVersion();
+        const current = await getCurrentVersion();
         const latest = changelogData.currentVersion;
 
         currentVersion.value = current;
@@ -130,18 +139,36 @@ export function usePWAUpdate() {
         // Tell the waiting service worker to activate
         registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
-        // Listen for the controlling service worker change
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          window.location.reload();
-        });
+        // Wait a bit for the service worker to activate, then hard reload
+        setTimeout(() => {
+          // Clear all caches before reload
+          if ('caches' in window) {
+            caches.keys().then((names) => {
+              names.forEach((name) => {
+                void caches.delete(name);
+              });
+            }).finally(() => {
+              // Hard reload to get fresh content
+              window.location.href = window.location.href;
+            });
+          } else {
+            // Hard reload without cache clearing
+            window.location.href = window.location.href;
+          }
+        }, 500);
       } else {
-        // No waiting service worker, just reload
-        window.location.reload();
+        // No waiting service worker, clear caches and reload
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map((name) => caches.delete(name)));
+        }
+        // Hard reload to get fresh content
+        window.location.href = window.location.href;
       }
     } catch (error) {
       console.error('Error installing update:', error);
-      // Fallback: force reload
-      window.location.reload();
+      // Fallback: hard reload
+      window.location.href = window.location.href;
     }
   };
 
