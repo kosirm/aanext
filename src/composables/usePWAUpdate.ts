@@ -9,6 +9,7 @@ export function usePWAUpdate() {
   const changelog = ref<Changelog | null>(null);
   const isCheckingForUpdate = ref(false);
   const updateCheckInterval = ref<number | null>(null);
+  const swUpdateReady = ref(false); // Service worker has new version ready
 
   // Compare semantic versions
   const compareVersions = (v1: string, v2: string): number => {
@@ -24,12 +25,24 @@ export function usePWAUpdate() {
     return 0;
   };
 
+  // Listen for service worker update event
+  const handleSWUpdate = () => {
+    console.log('🎉 Received swUpdated event - new version is ready!');
+    swUpdateReady.value = true;
+    // Check version to update UI
+    void checkForUpdate();
+  };
+
   // Check for version update
   const checkForUpdate = async () => {
     isCheckingForUpdate.value = true;
 
     try {
-      console.log(`📱 Current version (build-time): ${currentVersion.value}`);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🔍 PWA Update Check Started');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log(`📱 Current version (from build): ${currentVersion.value}`);
+      console.log(`   VITE_APP_VERSION: ${import.meta.env.VITE_APP_VERSION}`);
 
       // Fetch latest version from server
       const versionResponse = await axios.get<{ version: string }>('/version.json', {
@@ -40,7 +53,7 @@ export function usePWAUpdate() {
       const serverVersion = versionResponse.data.version;
       latestVersion.value = serverVersion;
 
-      console.log(`🌐 Latest version (server): ${serverVersion}`);
+      console.log(`🌐 Latest version (from server): ${serverVersion}`);
 
       // Load changelog
       const changelogResponse = await axios.get<Changelog>('/changelog.json', {
@@ -48,25 +61,42 @@ export function usePWAUpdate() {
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });
       changelog.value = changelogResponse.data;
+      console.log(`📋 Changelog loaded: ${changelog.value.updates.length} entries`);
 
       // Check if update is available
-      const hasUpdate = compareVersions(serverVersion, currentVersion.value) > 0;
+      const comparison = compareVersions(serverVersion, currentVersion.value);
+      const hasUpdate = comparison > 0;
       updateAvailable.value = hasUpdate;
 
+      console.log(`🔢 Version comparison: ${serverVersion} vs ${currentVersion.value} = ${comparison}`);
+
       if (hasUpdate) {
-        console.log(`✅ Update available: ${currentVersion.value} → ${serverVersion}`);
+        console.log(`✅ UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
+        console.log(`   User should click "Pokreni ažuriranje" to reload`);
+      } else if (comparison < 0) {
+        console.log(`⚠️  Server version is OLDER than current version!`);
       } else {
-        console.log(`✅ App is up to date: ${currentVersion.value}`);
+        console.log(`✅ App is UP TO DATE: ${currentVersion.value}`);
       }
 
-      // Also trigger service worker update check
+      // Check service worker status
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
+          console.log('🔄 Service Worker Status:');
+          console.log(`   - Installing: ${registration.installing ? 'YES' : 'NO'}`);
+          console.log(`   - Waiting: ${registration.waiting ? 'YES' : 'NO'}`);
+          console.log(`   - Active: ${registration.active ? 'YES' : 'NO'}`);
           console.log('🔄 Triggering service worker update check...');
           await registration.update();
+        } else {
+          console.log('⚠️  No service worker registration found');
         }
+      } else {
+        console.log('⚠️  Service Worker API not available');
       }
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (error) {
       console.error('❌ Error checking for update:', error);
     } finally {
@@ -74,15 +104,50 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - reload the page
-  const installUpdate = () => {
-    console.log('🔄 Reloading page to apply update...');
-    window.location.reload();
+  // Install update - clear cache and reload
+  const installUpdate = async () => {
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔄 INSTALLING UPDATE');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log(`   Current version: ${currentVersion.value}`);
+    console.log(`   Target version: ${latestVersion.value}`);
+
+    try {
+      // Step 1: Unregister service worker
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        console.log(`   Step 1: Unregistering ${registrations.length} service worker(s)...`);
+        for (const registration of registrations) {
+          await registration.unregister();
+        }
+      }
+
+      // Step 2: Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        console.log(`   Step 2: Clearing ${cacheNames.length} cache(s)...`);
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+
+      console.log('   Step 3: Reloading page...');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+      // Step 3: Force reload from server (use replace to avoid self-assignment)
+      window.location.replace(window.location.href);
+    } catch (error) {
+      console.error('❌ Error during update:', error);
+      // Fallback: just reload
+      window.location.reload();
+    }
   };
 
   // Initialize on mount
   onMounted(() => {
     console.log('🚀 PWA Update Manager: Initializing...');
+    console.log(`   Current version: ${currentVersion.value}`);
+
+    // Listen for service worker update events
+    window.addEventListener('swUpdated', handleSWUpdate);
 
     // Initial check
     void checkForUpdate();
@@ -99,6 +164,7 @@ export function usePWAUpdate() {
     if (updateCheckInterval.value !== null) {
       clearInterval(updateCheckInterval.value);
     }
+    window.removeEventListener('swUpdated', handleSWUpdate);
   });
 
   return {

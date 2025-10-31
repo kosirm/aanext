@@ -58,10 +58,12 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      env: {
-        VITE_APP_VERSION: appVersion,
+      // env: {
+      //   VITE_APP_VERSION: appVersion,
+      // },
+      rawDefine: {
+        'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
       },
-      // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
       // polyfillModulePreload: true,
@@ -178,7 +180,8 @@ export default defineConfig((ctx) => {
       // manualStoreHydration: true,
       // manualPostHydrationTrigger: true,
 
-      pwa: false,
+      // Enable PWA in dev mode when QUASAR_DEV_MODE=false (w q -ds)
+      pwa: process.env.QUASAR_DEV_MODE === 'false',
       // pwaOfflineHtmlFilename: 'offline.html', // do NOT use index.html as name!
 
       // pwaExtendGenerateSWOptions (cfg) {},
@@ -245,7 +248,8 @@ export default defineConfig((ctx) => {
             },
           },
           {
-            // Always fetch version.json and changelog.json from network
+            // Always fetch version.json and changelog.json from network first
+            // Falls back to cache if offline
             urlPattern: ({ url }) => {
               return url.pathname.includes('version.json') ||
                      url.pathname.includes('changelog.json');
@@ -254,6 +258,9 @@ export default defineConfig((ctx) => {
             options: {
               cacheName: 'version-data',
               networkTimeoutSeconds: 3,
+              expiration: {
+                maxAgeSeconds: 60, // Cache for only 60 seconds
+              },
             },
           },
         ];

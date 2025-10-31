@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset PWA - AA Hrvatska</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        button.danger {
+            background: #d32f2f;
+        }
+        button.danger:hover {
+            background: #c62828;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        ul {
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Reset PWA Cache</h1>
+        <p>Ova stranica pomaže u resetiranju PWA aplikacije kada imate problema s ažuriranjem.</p>
+        
+        <h3>Što ova stranica radi:</h3>
+        <ul>
+            <li>Deregistrira service worker</li>
+            <li>Briše sve cache podatke</li>
+            <li>Briše localStorage</li>
+            <li>Ponovno učitava aplikaciju</li>
+        </ul>
+
+        <button onclick="resetPWA()">🔄 Reset PWA</button>
+        <button onclick="clearCacheOnly()">🗑️ Obriši samo Cache</button>
+        <button onclick="unregisterSW()" class="danger">⚠️ Deregistriraj Service Worker</button>
+        <button onclick="goHome()">🏠 Povratak na početnu</button>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+
+        async function resetPWA() {
+            showStatus('Resetiranje PWA aplikacije...', 'info');
+            
+            try {
+                // 1. Unregister service worker
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                    console.log('✅ Service worker deregistriran');
+                }
+
+                // 2. Clear all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('✅ Cache obrisan');
+                }
+
+                // 3. Clear localStorage
+                localStorage.clear();
+                console.log('✅ localStorage obrisan');
+
+                // 4. Clear sessionStorage
+                sessionStorage.clear();
+                console.log('✅ sessionStorage obrisan');
+
+                showStatus('✅ PWA resetiran! Stranica će se ponovno učitati za 2 sekunde...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } catch (error) {
+                console.error('❌ Greška:', error);
+                showStatus('❌ Greška pri resetiranju: ' + error.message, 'error');
+            }
+        }
+
+        async function clearCacheOnly() {
+            showStatus('Brisanje cache-a...', 'info');
+            
+            try {
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    console.log('✅ Cache obrisan');
+                    showStatus('✅ Cache obrisan! Stranica će se ponovno učitati...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showStatus('⚠️ Cache API nije dostupan', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Greška:', error);
+                showStatus('❌ Greška pri brisanju cache-a: ' + error.message, 'error');
+            }
+        }
+
+        async function unregisterSW() {
+            showStatus('Deregistracija service workera...', 'info');
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const registration of registrations) {
+                        await registration.unregister();
+                    }
+                    console.log('✅ Service worker deregistriran');
+                    showStatus('✅ Service worker deregistriran! Stranica će se ponovno učitati...', 'success');
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showStatus('⚠️ Service Worker API nije dostupan', 'error');
+                }
+            } catch (error) {
+                console.error('❌ Greška:', error);
+                showStatus('❌ Greška pri deregistraciji: ' + error.message, 'error');
+            }
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>
+

@@ -386,6 +386,15 @@ run_quasar_dev() {
         echo "Building Quasar PWA..."
         quasar build -m pwa
         ;;
+    "serve-pwa")
+        echo "Building and serving PWA locally..."
+        quasar build -m pwa
+        echo ""
+        echo "Starting local server on http://localhost:8080"
+        echo "Press Ctrl+C to stop"
+        echo ""
+        npx http-server dist/pwa -p 8080 -c-1
+        ;;
     "build-electron")
         echo "Building Quasar Electron app..."
         quasar build -m electron
@@ -475,9 +484,10 @@ case "$1" in
     echo "Quasar Development Commands:"
     echo "  q, quasar                     - Start dev server WITHOUT service worker (default)"
     echo "  q -d, quasar --development    - Start dev server WITHOUT service worker (explicit)"
-    echo "  q -ds, quasar --development-sw - Start dev server WITH service worker"
+    echo "  q -ds, quasar --development-sw - Start dev server WITH service worker (SPA mode)"
     echo "  q build                       - Build production app"
     echo "  q build-pwa                   - Build PWA"
+    echo "  q serve-pwa                   - Build and serve PWA locally (http://localhost:8080)"
     echo "  q build-electron              - Build Electron app"
     echo ""
     echo "Git Workflow Commands:"
@@ -501,7 +511,8 @@ case "$1" in
     echo ""
     echo "Examples:"
     echo "  w q                           - Start dev server (no service worker)"
-    echo "  w q -ds                       - Start dev server with service worker"
+    echo "  w q -ds                       - Start dev server with service worker (SPA mode)"
+    echo "  w q serve-pwa                 - Build and test PWA locally"
     echo "  w q build                     - Build production app"
     echo "  w q build-pwa                 - Build PWA"
     echo ""
