@@ -55,8 +55,8 @@
               <li><router-link to="/">Povijest AA</router-link></li>
               <li><router-link to="/informacije">Anonimnost u AA</router-link></li>
               <li><router-link to="/literatura">Česta pitanja</router-link></li>
-              <li><router-link to="/o-nama">O našoj grupi</router-link></li>
-              <li><router-link to="/privatnost">Privatnost</router-link></li>
+              <li><router-link to="/o-nama">Dnevna razmatranja</router-link></li>
+              <li><router-link to="/privatnost">Čitaonica</router-link></li>
             </ul>
           </div>
         </div>
@@ -66,9 +66,9 @@
           <div class="footer-section">
             <h5 class="section-title">Alati</h5>
             <ul class="footer-links">
-              <li><router-link to="/privatnost">Čitaonica</router-link></li>
-              <li><router-link to="/help">Dnevna Razmatranja</router-link></li>
-              <li><a href="tel:+385955041511">Kalkulator Trijeznosti</a></li>
+              <li><router-link to="/privatnost">Oznake</router-link></li>
+              <li><router-link to="/help">Kalkulator trijeznosti</router-link></li>
+              <li><a href="tel:+385955041511">Promjena teme</a></li>
               <li><a href="#" @click.prevent="resetServiceWorker">Ažuriranje aplikacije</a></li>
               <li><a href="mailto:info@aahrvatska.hr">Pomoć</a></li>
             </ul>

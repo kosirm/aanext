@@ -11,6 +11,46 @@ check_git_repo() {
     fi
 }
 
+# Function to get current version from package.json
+get_current_version() {
+    grep '"version"' package.json | head -1 | sed 's/.*"version": "\(.*\)".*/\1/'
+}
+
+# Function to bump version in package.json
+bump_version() {
+    local bump_type=$1
+    local current_version=$(get_current_version)
+
+    # Parse version into major.minor.patch
+    IFS='.' read -r major minor patch <<< "$current_version"
+
+    case "$bump_type" in
+        "major")
+            major=$((major + 1))
+            minor=0
+            patch=0
+            ;;
+        "minor")
+            minor=$((minor + 1))
+            patch=0
+            ;;
+        "patch")
+            patch=$((patch + 1))
+            ;;
+        *)
+            echo "Error: Invalid bump type. Use: major, minor, or patch"
+            exit 1
+            ;;
+    esac
+
+    local new_version="$major.$minor.$patch"
+
+    # Update package.json
+    sed -i "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+
+    echo "$new_version"
+}
+
 # Function to clean up branches
 cleanup_branches() {
     echo "Cleaning up merged branches..."
@@ -180,6 +220,7 @@ finish_task_and_update() {
 # Finishes a task by merging it into main
 finish_task() {
     local message=$1
+    local bump_type=$2
     local current_branch=$(git branch --show-current)
 
     # Don't allow finishing from main
@@ -205,13 +246,78 @@ finish_task() {
     # Merge the task branch
     git merge "$current_branch" --no-ff -m "$message"
 
+    # Bump version if specified
+    if [ -n "$bump_type" ]; then
+        local old_version=$(get_current_version)
+        echo ""
+        echo "Bumping version ($bump_type)..."
+        local new_version=$(bump_version "$bump_type")
+        echo "✓ Version bumped: $old_version → $new_version"
+
+        # Commit version bump
+        git add package.json
+        git commit -m "chore: bump version to $new_version"
+    fi
+
     # Push main
     git push origin main
 
     # Keep the task branch (don't delete it)
     echo "✓ Task completed and merged to main"
+    if [ -n "$bump_type" ]; then
+        echo "✓ Version updated to $new_version"
+    fi
     echo "✓ Branch '$current_branch' preserved for future reference"
     echo "💡 You can delete it later with: git branch -d $current_branch"
+}
+
+# Quick update on main branch with automatic patch version bump
+quick_update() {
+    local message=${1:-"minor changes"}
+    local current_branch=$(git branch --show-current)
+
+    # Only allow on main branch
+    if [ "$current_branch" != "main" ]; then
+        echo "Error: 'w update' can only be used on main branch"
+        echo "Current branch: $current_branch"
+        echo "Tip: Use 'w finish' to complete your task first"
+        exit 1
+    fi
+
+    # Check if there are any changes
+    if git diff-index --quiet HEAD -- && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+        echo "No changes to commit"
+        exit 0
+    fi
+
+    # Pull latest changes first
+    echo "Pulling latest changes..."
+    git pull origin main
+
+    # Commit changes
+    echo "Committing changes: $message"
+    git add .
+    git commit -m "$message"
+
+    # Bump patch version
+    local old_version=$(get_current_version)
+    echo ""
+    echo "Bumping patch version..."
+    local new_version=$(bump_version "patch")
+    echo "✓ Version bumped: $old_version → $new_version"
+
+    # Commit version bump
+    git add package.json
+    git commit -m "chore: bump version to $new_version"
+
+    # Push to remote
+    echo "Pushing to remote..."
+    git push origin main
+
+    echo ""
+    echo "✓ Changes committed and pushed"
+    echo "✓ Version updated to $new_version"
+    echo "💡 This was a patch update - no need to update changelog.json"
 }
 
 # Function to abandon current task
@@ -294,10 +400,19 @@ case "$1" in
     ;;
 "finish")
     if [ -z "$2" ]; then
-        echo "Usage: w finish \"commit message\""
+        echo "Usage: w finish \"commit message\" [major|minor|patch]"
+        echo ""
+        echo "Examples:"
+        echo "  w finish \"Fixed typo\"                    - No version bump"
+        echo "  w finish \"Fixed typo\" patch              - Bump patch version (1.0.0 → 1.0.1)"
+        echo "  w finish \"Added new feature\" minor       - Bump minor version (1.0.0 → 1.1.0)"
+        echo "  w finish \"Major redesign\" major          - Bump major version (1.0.0 → 2.0.0)"
         exit 1
     fi
-    finish_task "$2"
+    finish_task "$2" "$3"
+    ;;
+"update")
+    quick_update "$2"
     ;;
 "finish-update")
     if [ -z "$2" ]; then
@@ -356,11 +471,12 @@ case "$1" in
     echo "  q build-electron              - Build Electron app"
     echo ""
     echo "Git Workflow Commands:"
-    echo "  start <branch-name>           - Start a new task branch"
-    echo "  finish \"message\"              - Complete current task and merge to main"
-    echo "  finish-update \"message\"       - Complete task, merge to main, and run update"
-    echo "  abandon [new-branch]          - Abandon current task, optionally start new branch"
-    echo "  cleanup                       - Clean up merged branches"
+    echo "  start <branch-name>                      - Start a new task branch"
+    echo "  update [\"message\"]                       - Quick commit on main with patch bump (default: 'minor changes')"
+    echo "  finish \"message\" [major|minor|patch]    - Complete task, merge to main, optionally bump version"
+    echo "  finish-update \"message\"                 - Complete task, merge to main, and run update"
+    echo "  abandon [new-branch]                     - Abandon current task, optionally start new branch"
+    echo "  cleanup                                  - Clean up merged branches"
     echo ""
     echo "Website Update Commands:"
     echo "  push \"message\"                - Commit and push with custom message"
@@ -379,12 +495,17 @@ case "$1" in
     echo "  w q build                     - Build production app"
     echo "  w q build-pwa                 - Build PWA"
     echo ""
-    echo "  w start pdf-font-system       - Start new task for PDF font work"
-    echo "  w finish \"Added font support\" - Complete task and merge to main"
-    echo "  w finish-update \"Help system done\" - Complete task, merge to main and run update"
-    echo "  w abandon                     - Abandon current task"
-    echo "  w abandon new-feature         - Abandon and start new task"
-    echo "  w cleanup                     - Delete all merged branches"
+    echo "  w start pdf-font-system                    - Start new task for PDF font work"
+    echo "  w update                                   - Quick commit on main (patch bump, msg: 'minor changes')"
+    echo "  w update \"Changed button colors\"           - Quick commit on main with custom message (patch bump)"
+    echo "  w finish \"Fixed typo\"                     - Complete task (no version bump)"
+    echo "  w finish \"Fixed typo\" patch                - Complete task and bump patch (1.0.0 → 1.0.1)"
+    echo "  w finish \"Added feature\" minor             - Complete task and bump minor (1.0.0 → 1.1.0)"
+    echo "  w finish \"Major redesign\" major            - Complete task and bump major (1.0.0 → 2.0.0)"
+    echo "  w finish-update \"Help system done\"         - Complete task, merge to main and run update"
+    echo "  w abandon                                  - Abandon current task"
+    echo "  w abandon new-feature                      - Abandon and start new task"
+    echo "  w cleanup                                  - Delete all merged branches"
     echo ""
     echo "  w push \"Updated content\"      - Update website with custom commit message"
     echo "  w push                        - Update website with default message"
