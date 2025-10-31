@@ -11,6 +11,9 @@ export function usePWAUpdate() {
   const swRegistration = ref<ServiceWorkerRegistration | null>(null);
   const updateCheckInterval = ref<number | null>(null);
 
+  // Store the initial version when app loads (from build-time env var)
+  const initialVersion = import.meta.env.VITE_APP_VERSION || '0.0.1';
+
   // Get service worker registration
   const getServiceWorkerRegistration = async () => {
     if ('serviceWorker' in navigator) {
@@ -76,21 +79,24 @@ export function usePWAUpdate() {
   // Load version info and check if update is ready
   const loadVersionInfo = async () => {
     try {
-      const current = await getCurrentVersion();
+      // Current version is what we loaded at startup
+      currentVersion.value = initialVersion;
+
+      // Latest version is what's on the server
+      const latest = await getLatestVersion();
       const changelogData = await loadChangelog();
 
       if (changelogData) {
-        currentVersion.value = current;
         latestVersion.value = changelogData.currentVersion;
 
-        // Update is available if versions don't match
-        const hasUpdate = compareVersions(changelogData.currentVersion, current) > 0;
+        // Update is available if server version > initial version
+        const hasUpdate = compareVersions(latest, initialVersion) > 0;
         updateAvailable.value = hasUpdate;
 
         if (hasUpdate) {
-          console.log(`Update available: ${current} → ${changelogData.currentVersion}`);
+          console.log(`Update available: ${initialVersion} → ${latest}`);
         } else {
-          console.log(`App is up to date: ${current}`);
+          console.log(`App is up to date: ${initialVersion}`);
         }
       }
     } catch (error) {
@@ -114,8 +120,8 @@ export function usePWAUpdate() {
     }
   };
 
-  // Get current version from changelog.json (always fresh from server)
-  const getCurrentVersion = async () => {
+  // Get latest version from server (what's currently deployed)
+  const getLatestVersion = async () => {
     try {
       // Fetch version.json with cache busting to get the actual deployed version
       const response = await axios.get<{ version: string }>('/version.json', {
@@ -124,8 +130,8 @@ export function usePWAUpdate() {
       });
       return response.data.version;
     } catch {
-      // Fallback to build-time version
-      return import.meta.env.VITE_APP_VERSION || '0.0.1';
+      // Fallback to initial version
+      return initialVersion;
     }
   };
 
@@ -167,13 +173,14 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - just reload the page (new SW is already activated)
+  // Install update - reload the page to get new version
   const installUpdate = () => {
     console.log('Installing update - reloading page...');
 
-    // Since skipWaiting is true, the new service worker is already active
-    // Just reload to get the new version
-    window.location.reload();
+    // Use href assignment for more reliable reload
+    // This bypasses any potential issues with reload()
+    const currentUrl = window.location.href;
+    window.location.href = currentUrl;
   };
 
   // Initialize on mount
