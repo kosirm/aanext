@@ -229,7 +229,12 @@ export default defineConfig((ctx) => {
             },
           },
           {
-            urlPattern: /^https:\/\/.*\.json$/,
+            // Cache JSON files EXCEPT version.json and changelog.json
+            urlPattern: ({ url }) => {
+              return url.pathname.endsWith('.json') &&
+                     !url.pathname.includes('version.json') &&
+                     !url.pathname.includes('changelog.json');
+            },
             handler: 'CacheFirst',
             options: {
               cacheName: 'json-data',
@@ -237,6 +242,18 @@ export default defineConfig((ctx) => {
                 maxEntries: 50,
                 maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
               },
+            },
+          },
+          {
+            // Always fetch version.json and changelog.json from network
+            urlPattern: ({ url }) => {
+              return url.pathname.includes('version.json') ||
+                     url.pathname.includes('changelog.json');
+            },
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'version-data',
+              networkTimeoutSeconds: 3,
             },
           },
         ];
