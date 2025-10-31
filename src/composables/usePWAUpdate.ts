@@ -75,7 +75,7 @@ export function usePWAUpdate() {
         headers: { 'Cache-Control': 'no-cache' }
       });
       return response.data.version;
-    } catch (error) {
+    } catch {
       // Fallback to build-time version
       return import.meta.env.VITE_APP_VERSION || '0.0.1';
     }
@@ -142,18 +142,18 @@ export function usePWAUpdate() {
         // Wait a bit for the service worker to activate, then hard reload
         setTimeout(() => {
           // Clear all caches before reload
-          if ('caches' in window) {
-            caches.keys().then((names) => {
+          if ('caches' in window && window.caches) {
+            void window.caches.keys().then((names) => {
               names.forEach((name) => {
-                void caches.delete(name);
+                void window.caches.delete(name);
               });
             }).finally(() => {
               // Hard reload to get fresh content
-              window.location.href = window.location.href;
+              window.location.replace(window.location.href);
             });
           } else {
             // Hard reload without cache clearing
-            window.location.href = window.location.href;
+            window.location.replace(window.location.href);
           }
         }, 500);
       } else {
@@ -163,12 +163,11 @@ export function usePWAUpdate() {
           await Promise.all(cacheNames.map((name) => caches.delete(name)));
         }
         // Hard reload to get fresh content
-        window.location.href = window.location.href;
+        window.location.replace(window.location.href);
       }
-    } catch (error) {
-      console.error('Error installing update:', error);
+    } catch {
       // Fallback: hard reload
-      window.location.href = window.location.href;
+      window.location.replace(window.location.href);
     }
   };
 
