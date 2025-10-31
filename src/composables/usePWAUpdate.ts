@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import type { Changelog } from 'src/types/changelog';
 
@@ -9,6 +9,7 @@ export function usePWAUpdate() {
   const changelog = ref<Changelog | null>(null);
   const isCheckingForUpdate = ref(false);
   const swRegistration = ref<ServiceWorkerRegistration | null>(null);
+  const updateCheckInterval = ref<number | null>(null);
 
   // Get service worker registration
   const getServiceWorkerRegistration = async () => {
@@ -25,28 +26,75 @@ export function usePWAUpdate() {
     return null;
   };
 
-  // Listen for service worker updates
+  // Listen for service worker lifecycle events
   const setupServiceWorkerListener = async () => {
     const registration = await getServiceWorkerRegistration();
 
     if (registration) {
+      console.log('Service Worker: Registration found');
+
       // Check for updates every 60 seconds
-      setInterval(() => {
+      updateCheckInterval.value = window.setInterval(() => {
+        console.log('Service Worker: Checking for updates...');
         void registration.update();
       }, 60000);
 
-      // Listen for new service worker waiting
+      // Listen for updatefound event
       registration.addEventListener('updatefound', () => {
+        console.log('Service Worker: Update found - downloading...');
         const newWorker = registration.installing;
+
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
+            console.log(`Service Worker: State changed to ${newWorker.state}`);
+
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // New service worker is ready
-              updateAvailable.value = true;
+              console.log('Service Worker: New version installed');
+              // Don't show update yet - wait for activation
+            }
+
+            if (newWorker.state === 'activated') {
+              console.log('Service Worker: New version activated - update ready!');
+              // Now the new version is fully ready
+              void loadVersionInfo();
             }
           });
         }
       });
+
+      // Listen for controller change (when new SW takes over)
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Service Worker: Controller changed - new version is active');
+        void loadVersionInfo();
+      });
+
+      // Initial check
+      void registration.update();
+    }
+  };
+
+  // Load version info and check if update is ready
+  const loadVersionInfo = async () => {
+    try {
+      const current = await getCurrentVersion();
+      const changelogData = await loadChangelog();
+
+      if (changelogData) {
+        currentVersion.value = current;
+        latestVersion.value = changelogData.currentVersion;
+
+        // Update is available if versions don't match
+        const hasUpdate = compareVersions(changelogData.currentVersion, current) > 0;
+        updateAvailable.value = hasUpdate;
+
+        if (hasUpdate) {
+          console.log(`Update available: ${current} → ${changelogData.currentVersion}`);
+        } else {
+          console.log(`App is up to date: ${current}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load version info:', error);
     }
   };
 
@@ -97,32 +145,21 @@ export function usePWAUpdate() {
     return 0;
   };
 
-  // Check if update is available
+  // Manually check for updates
   const checkForUpdate = async () => {
     isCheckingForUpdate.value = true;
 
     try {
-      // Check for service worker updates
+      console.log('Manual update check triggered');
+
+      // Trigger service worker update check
       const registration = await getServiceWorkerRegistration();
       if (registration) {
         await registration.update();
       }
 
-      // Check for version updates in changelog
-      const changelogData = await loadChangelog();
-
-      if (changelogData) {
-        const current = await getCurrentVersion();
-        const latest = changelogData.currentVersion;
-
-        currentVersion.value = current;
-        latestVersion.value = latest;
-
-        // Update available if latest > current OR if service worker has update waiting
-        const hasVersionUpdate = compareVersions(latest, current) > 0;
-        const hasSwUpdate = registration?.waiting !== null && registration?.waiting !== undefined;
-        updateAvailable.value = hasVersionUpdate || hasSwUpdate;
-      }
+      // Load current version info
+      await loadVersionInfo();
     } catch (error) {
       console.error('Error checking for update:', error);
     } finally {
@@ -130,51 +167,27 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update and reload
-  const installUpdate = async () => {
-    try {
-      const registration = await getServiceWorkerRegistration();
+  // Install update - just reload the page (new SW is already activated)
+  const installUpdate = () => {
+    console.log('Installing update - reloading page...');
 
-      if (registration?.waiting) {
-        // Tell the waiting service worker to activate
-        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-
-        // Wait a bit for the service worker to activate, then hard reload
-        setTimeout(() => {
-          // Clear all caches before reload
-          if ('caches' in window && window.caches) {
-            void window.caches.keys().then((names) => {
-              names.forEach((name) => {
-                void window.caches.delete(name);
-              });
-            }).finally(() => {
-              // Hard reload to get fresh content
-              window.location.replace(window.location.href);
-            });
-          } else {
-            // Hard reload without cache clearing
-            window.location.replace(window.location.href);
-          }
-        }, 500);
-      } else {
-        // No waiting service worker, clear caches and reload
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map((name) => caches.delete(name)));
-        }
-        // Hard reload to get fresh content
-        window.location.replace(window.location.href);
-      }
-    } catch {
-      // Fallback: hard reload
-      window.location.replace(window.location.href);
-    }
+    // Since skipWaiting is true, the new service worker is already active
+    // Just reload to get the new version
+    window.location.reload();
   };
 
   // Initialize on mount
   onMounted(() => {
+    console.log('PWA Update: Initializing...');
     void setupServiceWorkerListener();
-    void checkForUpdate();
+    void loadVersionInfo();
+  });
+
+  // Cleanup on unmount
+  onUnmounted(() => {
+    if (updateCheckInterval.value !== null) {
+      clearInterval(updateCheckInterval.value);
+    }
   });
 
   return {

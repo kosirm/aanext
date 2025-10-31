@@ -9,7 +9,7 @@ Localstorage:
 - last page navigated to
 
 required styles for themes:
-    - colors
+- colors
   --color-primary: #1976d2;
   --color-primary-light: #42a5f5;
   --color-primary-dark: #1565c0;
@@ -40,4 +40,4 @@ required styles for themes:
   --color-success: #388e3c;
   --color-info: #1976d2;            
 
-
+- fonts:

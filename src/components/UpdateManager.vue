@@ -56,7 +56,7 @@
             class="text-center q-pa-md bg-positive text-white rounded-borders"
           >
             <q-icon name="check_circle" size="sm" class="q-mr-sm" />
-            Aplikacija je ažurna
+            Imate najnoviju verziju aplikacije.
           </div>
 
           <!-- Manual check button -->
@@ -165,10 +165,10 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const handleUpdate = async () => {
+const handleUpdate = () => {
   isUpdating.value = true;
   try {
-    await installUpdate();
+    installUpdate();
     // Page will reload automatically
   } catch (error) {
     console.error('Update failed:', error);
