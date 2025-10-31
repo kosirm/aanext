@@ -40,4 +40,5 @@ required styles for themes:
   --color-success: #388e3c;
   --color-info: #1976d2;            
 
-
+Theme system mi još uvijek predstavlja velik problem...
+Kombinacija boja i fontova... Kako da to riješim?
