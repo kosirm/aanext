@@ -43,7 +43,7 @@ const userPreferences = useUserPreferencesStore();
 
 <style scoped lang="scss">
 .app-header {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-dark);
   color: white;
 }
 

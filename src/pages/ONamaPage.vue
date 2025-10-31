@@ -502,6 +502,7 @@ h2 {
   background-color: var(--color-surface);
   transition: background-color 0.5s ease;
   position: relative;
+  padding-top: 16px;
 
   &.celebration-mode {
     background: linear-gradient(
@@ -519,8 +520,8 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
-  padding: var(--spacing-xl) 0;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
 }
 
 .title-line {

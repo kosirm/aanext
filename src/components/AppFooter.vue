@@ -5,9 +5,9 @@
         <!-- Logo and Info Column -->
         <div class="footer-column logo-section">
           <router-link to="/" class="logo-link">
-            <img 
-              src="/assets/images/alcoholics-anonymous-text-white-2.svg" 
-              alt="AA Hrvatska" 
+            <img
+              src="/assets/images/alcoholics-anonymous-text-white-2.svg"
+              alt="AA Hrvatska"
               class="footer-logo"
               style="height: 200px; width: auto;"
             />
@@ -112,7 +112,7 @@ const resetServiceWorker = async () => {
 
 <style scoped lang="scss">
 .footer4 {
-  background-color: var(--color-primary);
+  background-color: var(--color-primary-dark);
   color: white;
   padding: 3rem 0 1.5rem;
   width: 100%;
@@ -151,7 +151,7 @@ const resetServiceWorker = async () => {
 .logo-link {
   display: inline-block;
   margin-bottom: 1rem;
-  
+
   img {
     height: 40px;
     width: auto;
@@ -164,7 +164,7 @@ const resetServiceWorker = async () => {
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
   }
-  
+
   p {
     margin: 0;
     opacity: 0.8;
@@ -178,7 +178,7 @@ const resetServiceWorker = async () => {
   font-weight: 600;
   position: relative;
   padding-bottom: 0.5rem;
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -194,17 +194,17 @@ const resetServiceWorker = async () => {
   list-style: none;
   padding: 0;
   margin: 0;
-  
+
   li {
     margin-bottom: 0.75rem;
-    
+
     a {
       color: rgba(255, 255, 255, 0.8);
       text-decoration: none;
       transition: color 0.2s ease;
       font-size: 0.95rem;
       display: inline-block;
-      
+
       &:hover {
         color: white;
         text-decoration: underline;
@@ -217,7 +217,7 @@ const resetServiceWorker = async () => {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  
+
   .social-icon {
     display: flex;
     align-items: center;
@@ -228,12 +228,12 @@ const resetServiceWorker = async () => {
     border-radius: 50%;
     color: white;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background-color: var(--q-primary);
       transform: translateY(-2px);
     }
-    
+
     .q-icon {
       font-size: 1.1rem;
     }
@@ -247,7 +247,7 @@ const resetServiceWorker = async () => {
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.85rem;
   margin-top: 1rem;
-  
+
   .q-icon {
     font-size: 1rem;
   }
@@ -267,11 +267,11 @@ const resetServiceWorker = async () => {
   .footer-row {
     justify-content: flex-start;
   }
-  
+
   .footer-column {
     flex: 0 0 50%;
     max-width: 50%;
-    
+
     &.logo-section {
       flex: 0 0 100%;
       max-width: 100%;
@@ -279,7 +279,7 @@ const resetServiceWorker = async () => {
       align-items: center;
       gap: 2rem;
       margin-bottom: 2.5rem;
-      
+
       .footer-info {
         flex: 1;
       }
@@ -291,29 +291,29 @@ const resetServiceWorker = async () => {
   .footer4 {
     padding: 2.5rem 0 1.5rem;
   }
-  
+
   .footer-column {
     flex: 0 0 100%;
     max-width: 100%;
     text-align: center;
     margin-bottom: 2rem;
-    
+
     &.logo-section {
       flex-direction: column;
       text-align: center;
       gap: 1rem;
-      
+
       .logo-link {
         margin: 0 auto 1rem;
       }
     }
-    
+
     .section-title::after {
       left: 50%;
       transform: translateX(-50%);
     }
   }
-  
+
   .social-icons {
     justify-content: center;
   }

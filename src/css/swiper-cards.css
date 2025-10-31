@@ -1,0 +1,272 @@
+/* ========================================
+   UNIFIED SWIPER CARDS STYLES
+   Used for both Shortcuts and Grupe swipers
+   ======================================== */
+
+/* ========================================
+   SWIPER CONTAINER
+   ======================================== */
+.swiper {
+  margin-left: auto;
+  margin-right: auto;
+  height: 450px;
+  width: 100vw;
+}
+
+.swiper-slide {
+  text-align: center;
+  font-size: 18px;
+  background: var(--color-surface-alternate, #EDEAE2);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================================
+   SWIPER NAVIGATION
+   ======================================== */
+.swiper-button-next {
+  top: 150px !important;
+  color: var(--color-primary, #1976d2);
+}
+
+.swiper-button-prev {
+  top: 150px !important;
+  color: var(--color-primary, #1976d2);
+}
+
+/* ========================================
+   SWIPER PAGINATION
+   ======================================== */
+.swiper-pagination-bullet {
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+  width: 20px;
+  height: 20px;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.swiper-pagination-bullet-active {
+  background-color: var(--color-primary, #146C94);
+}
+
+/* ========================================
+   AUTOPLAY PROGRESS INDICATOR
+   ======================================== */
+.autoplay-progress {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--color-text-secondary, #1B475B);
+  opacity: .3;
+}
+
+.autoplay-progress svg {
+  --progress: 0;
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  stroke-width: 4px;
+  stroke: var(--color-text-secondary, #1B475B);
+  opacity: .4;
+  fill: none;
+  stroke-dashoffset: calc(125.6px * (1 - var(--progress)));
+  stroke-dasharray: 125.6;
+  transform: rotate(-90deg);
+}
+
+/* ========================================
+   CARD STRUCTURE
+   ======================================== */
+.card {
+  width: 100%;
+  height: 100%;
+}
+
+.card-bg {
+  background-size: 100%;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  filter: blur(8px);
+  background-color: var(--color-surface-alternate, #f5ebd1);
+}
+
+.card-image {
+  position: absolute;
+  left: 5%;
+  top: 20px;
+  width: 90%;
+  height: 60%;
+  border-radius: 30px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .4);
+  background-size: cover;
+  background-position: center;
+}
+
+.card-text-div {
+  border-radius: 10px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 20px;
+  padding-right: 20px;
+  position: absolute;
+  width: 70%;
+  bottom: 120px;
+  left: 15%;
+  background-color: var(--color-surface, #f6f4eb);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .4);
+}
+
+.card-button {
+  position: absolute;
+  width: 100%;
+  bottom: 55px;
+}
+
+/* ========================================
+   CARD TEXT STYLES
+   ======================================== */
+.card-text {
+  font-family: var(--font-family-secondary, "Roboto Condensed", sans-serif);
+  font-weight: bold;
+  font-size: smaller;
+  color: var(--color-text-muted, rgba(122, 91, 50, .8));
+  line-height: 18px;
+}
+
+.card-text-grupe {
+  font-family: var(--font-family-secondary, "Roboto Condensed", sans-serif);
+  font-weight: bold;
+  font-size: medium;
+  color: var(--color-text-muted, #7a6736);
+  line-height: 20px;
+  margin-bottom: 5px !important;
+}
+
+.card-text-overlay {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-secondary, "Roboto Condensed", sans-serif);
+  font-size: 72px;
+  line-height: 30px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.note {
+  font-size: 42px !important;
+}
+
+/* ========================================
+   SLIDE BUTTON
+   ======================================== */
+.slide-btn {
+  opacity: 1;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  border-radius: 20px !important;
+  font-size: 100%;
+}
+
+/* ========================================
+   SHORTCUTS SWIPER - CARD IMAGE CLASSES
+   ======================================== */
+.ci-1 {
+  background-image: url("/assets/shortcuts/images/books.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.ci-2 {
+  background-image: url("/assets/shortcuts/images/calculator-2.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.ci-4 {
+  background-image: url("/assets/shortcuts/images/bill-and-bob.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.ci-5 {
+  background-image: url("/assets/shortcuts/images/anonimnost.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.ci-6 {
+  background-image: url("/assets/shortcuts/images/dnevna_razmatranja.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.ci-7 {
+  background-image: url("/assets/shortcuts/images/pitanja.png");
+  background-size: cover;
+  background-position: center;
+}
+
+/* ========================================
+   GRUPE SWIPER - CARD IMAGE CLASSES
+   ======================================== */
+.g-1 {
+  background-image: url("/assets/grupe/images/Beograd-1.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.g-2 {
+  background-image: url("/assets/grupe/images/Beograd-2.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.g-3 {
+  background-image: url("/assets/grupe/images/Sarajevo.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.g-4 {
+  background-image: url("/assets/grupe/images/Subotica.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.g-5 {
+  background-image: url("/assets/grupe/images/absolute-beginners.png");
+  background-size: cover;
+  background-position: center;
+}
+

@@ -7,7 +7,7 @@
       style="background-image: url('/assets/images/header.webp');"
       v-touch-swipe.mouse.horizontal="handleSwipe"
     >
-      <div class="mbr-overlay" style="opacity: 0.5; background-color: rgb(9, 57, 89);"></div>
+      <div class="mbr-overlay"></div>
       <div class="hero-content q-pa-xl text-white text-center">
         <h1 class="text-h1 q-mb-md header-title">
           <strong>Anonimni Alkoholičari Hrvatske</strong>
@@ -839,6 +839,8 @@ const grupeCards = [
       width: 100%;
       height: 100%;
       z-index: 0;
+      opacity: 0.5;
+      background-color: var(--color-primary);
     }
 
     .hero-content {
@@ -1001,7 +1003,7 @@ const grupeCards = [
 
   :deep(.swiper-slide) {
     position: relative;
-    background: #EDEAE2;
+    background: var(--color-surface-alternate);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1075,7 +1077,7 @@ const grupeCards = [
 // Grupe Swiper Section
 .grupe-swiper-section {
   padding: 0 0;
-  background-color: var(--bg-secondary);
+  background-color: var(--color-surface-alternate);
 }
 
 .grupe-swiper-wrapper {
@@ -1085,7 +1087,7 @@ const grupeCards = [
   margin-left: 0; // Remove the centering calculation
   left: 50%; // Center using transform
   transform: translateX(-50%); // Center using transform
-  background-color: var(--bg-primary);
+  background-color: var(--color-surface-alternate);
 }
 
 .grupe-swiper {
@@ -1095,7 +1097,7 @@ const grupeCards = [
 
   :deep(.swiper-slide) {
     position: relative;
-    background: #EDEAE2;
+    background: var(--color-surface-alternate);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -1217,6 +1219,11 @@ h2 {
 
   :deep(.q-expansion-item__container) {
     border-radius: var(--radius-md);
+  }
+
+  // Add spacing to the bottom of q-card inside q-expansion-item
+  :deep(.q-expansion-item .q-card) {
+    margin-bottom: 15px;
   }
 
   .meeting-info-item {

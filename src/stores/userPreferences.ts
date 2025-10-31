@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { themes } from 'src/config/themes';
 
 export const useUserPreferencesStore = defineStore('userPreferences', () => {
   // State
@@ -34,6 +35,29 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
   const applyTheme = () => {
     document.documentElement.setAttribute('data-theme', themeName.value);
     document.documentElement.setAttribute('data-mode', themeMode.value);
+
+    // Update meta theme-color for PWA toolbar/system UI
+    updateThemeColor();
+  };
+
+  // Update the theme-color meta tag to match current theme
+  const updateThemeColor = () => {
+    // Find the current theme configuration
+    const currentTheme = themes.find(t => t.id === themeName.value) || themes[0];
+
+    // Get the primary color based on current mode (light/dark)
+    const primaryColor = themeMode.value === 'light'
+      ? currentTheme.lightColors.primary
+      : currentTheme.darkColors.primary;
+
+    // Update or create the theme-color meta tag
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.setAttribute('name', 'theme-color');
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.setAttribute('content', primaryColor);
   };
 
   // Setters with localStorage persistence

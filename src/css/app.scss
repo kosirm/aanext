@@ -1,5 +1,8 @@
 // app global css in SCSS form
 
+// Import unified swiper cards styles
+@import './swiper-cards.css';
+
 // Override browser default mark element styling
 mark {
   background-color: #b3e5fc !important;
@@ -176,7 +179,7 @@ body {
 // Theme color overrides for Quasar components
 .q-header,
 .q-toolbar {
-  background-color: var(--color-primary) !important;
+  background-color: var(--color-primary-dark) !important;
 }
 
 .q-drawer {

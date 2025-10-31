@@ -72,8 +72,8 @@
     </q-list>
 
     <!-- Bookmark Manager Modal -->
-    <q-dialog v-model="showBookmarkManager" maximized>
-      <q-card>
+    <q-dialog v-model="showBookmarkManager" class="bookmark-manager-dialog">
+      <q-card class="bookmark-manager-card">
         <q-toolbar class="bg-primary text-white">
           <q-toolbar-title>Upravitelj oznaka</q-toolbar-title>
           <q-btn
@@ -91,8 +91,8 @@
     </q-dialog>
 
     <!-- Theme Manager Modal -->
-    <q-dialog v-model="showThemeManager" position="bottom">
-      <q-card style="width: 100%; max-width: 900px; max-height: 80vh;">
+    <q-dialog v-model="showThemeManager" class="theme-manager-dialog">
+      <q-card class="theme-manager-card">
         <q-toolbar class="bg-primary text-white">
           <q-toolbar-title>Upravljanje temama</q-toolbar-title>
           <q-btn
@@ -103,7 +103,7 @@
             @click="showThemeManager = false"
           />
         </q-toolbar>
-        <q-card-section class="scroll" style="max-height: calc(80vh - 50px);">
+        <q-card-section class="scroll theme-manager-content">
           <ThemeManager />
         </q-card-section>
       </q-card>
@@ -167,6 +167,50 @@ const forceUpdate = () => {
 .drawer-header {
   background-color: var(--color-primary);
   color: white;
+}
+
+// Theme Manager Modal - 50px spacing on all sides, allows page scroll
+:deep(.theme-manager-dialog) {
+  .q-dialog__backdrop {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .theme-manager-card {
+    margin: 50px;
+    max-width: calc(100vw - 100px);
+    max-height: calc(100vh - 100px);
+    width: 100%;
+
+    @media (max-width: 600px) {
+      margin: 50px 20px;
+      max-width: calc(100vw - 40px);
+    }
+  }
+
+  .theme-manager-content {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+  }
+}
+
+// Bookmark Manager Modal - 10-20px spacing on all sides
+:deep(.bookmark-manager-dialog) {
+  .q-dialog__backdrop {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .bookmark-manager-card {
+    margin: 15px;
+    max-width: calc(100vw - 30px);
+    max-height: calc(100vh - 30px);
+    width: 100%;
+
+    @media (max-width: 600px) {
+      margin: 10px;
+      max-width: calc(100vw - 20px);
+      max-height: calc(100vh - 20px);
+    }
+  }
 }
 </style>
 

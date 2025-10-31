@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="isOpen" position="bottom" maximized>
+  <q-dialog v-model="isOpen" class="sobriety-calculator-dialog">
     <q-card class="sobriety-calculator-card">
       <q-card-section class="calculator-header">
         <div class="text-h6">Kalkulator trijeznosti</div>
@@ -169,12 +169,24 @@ const closeDialog = () => {
 </script>
 
 <style scoped lang="scss">
+// Calculator Modal - centered with spacing around
+:deep(.sobriety-calculator-dialog) {
+  .q-dialog__backdrop {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
 .sobriety-calculator-card {
   max-width: 900px;
-  max-height: 90vh;
-  margin: 0 auto;
+  max-height: calc(100vh - 100px);
+  margin: 50px;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 600px) {
+    margin: 50px 20px;
+    max-height: calc(100vh - 100px);
+  }
 }
 
 .calculator-header {
