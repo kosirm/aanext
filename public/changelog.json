@@ -1,0 +1,18 @@
+{
+  "currentVersion": "0.0.2",
+  "updates": [
+    {
+      "version": "0.0.2",
+      "date": "2025-10-31",
+      "title": "Početna verzija",
+      "changes": [
+        "Nova PWA aplikacija za AA Hrvatska",
+        "Sustav tema s podrškom za tamni način",
+        "Literatura stranica s knjigama i dnevnim razmišljanjima",
+        "Kalkulator trijeznosti",
+        "Informacije o sastancima"
+      ]
+    }
+  ]
+}
+

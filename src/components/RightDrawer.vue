@@ -60,13 +60,19 @@
 
       <q-item
         clickable
-        @click="forceUpdate"
+        @click="openUpdateManager"
       >
         <q-item-section avatar>
           <q-icon name="refresh" />
         </q-item-section>
         <q-item-section>
           Ažuriranje
+          <q-badge
+            v-if="updateAvailable"
+            color="negative"
+            floating
+            rounded
+          />
         </q-item-section>
       </q-item>
     </q-list>
@@ -111,24 +117,31 @@
 
     <!-- Sobriety Calculator Modal -->
     <SobrietyCalculator v-model="showSobrietyCalculator" />
+
+    <!-- Update Manager Modal -->
+    <UpdateManager v-model="showUpdateManager" />
   </q-drawer>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useNavigationStore } from 'src/stores/navigation';
-import { useQuasar } from 'quasar';
 import BookmarkManager from './BookmarkManager.vue';
 import ThemeManager from './ThemeManager.vue';
 import SobrietyCalculator from './SobrietyCalculator.vue';
+import UpdateManager from './UpdateManager.vue';
+import { usePWAUpdate } from 'src/composables/usePWAUpdate';
 
 const navigationStore = useNavigationStore();
-const $q = useQuasar();
+
+// PWA Update detection
+const { updateAvailable } = usePWAUpdate();
 
 // State for modals
 const showBookmarkManager = ref(false);
 const showThemeManager = ref(false);
 const showSobrietyCalculator = ref(false);
+const showUpdateManager = ref(false);
 
 // Tool actions
 const openBookmarkManager = () => {
@@ -146,14 +159,9 @@ const openThemeSettings = () => {
   showThemeManager.value = true;
 };
 
-const forceUpdate = () => {
+const openUpdateManager = () => {
   navigationStore.toggleRightDrawer();
-  // TODO: Implement force update functionality
-  $q.notify({
-    message: 'Ažuriranje stranice - uskoro dostupno',
-    color: 'info',
-    position: 'top',
-  });
+  showUpdateManager.value = true;
 };
 
 </script>

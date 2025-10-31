@@ -69,7 +69,17 @@
               <li><router-link to="/privatnost">Oznake</router-link></li>
               <li><router-link to="/help">Kalkulator trijeznosti</router-link></li>
               <li><a href="tel:+385955041511">Promjena teme</a></li>
-              <li><a href="#" @click.prevent="resetServiceWorker">Ažuriranje aplikacije</a></li>
+              <li>
+                <a href="#" @click.prevent="openUpdateManager" class="update-link">
+                  Ažuriranje aplikacije
+                  <q-badge
+                    v-if="updateAvailable"
+                    color="negative"
+                    rounded
+                    class="q-ml-xs"
+                  />
+                </a>
+              </li>
               <li><a href="mailto:info@aahrvatska.hr">Pomoć</a></li>
             </ul>
           </div>
@@ -81,32 +91,28 @@
         <p>&copy; {{ new Date().getFullYear() }} AA Hrvatska. Sva prava pridržana.</p>
       </div>
     </div>
+
+    <!-- Update Manager Modal -->
+    <UpdateManager v-model="showUpdateManager" />
   </q-footer>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useUiStore } from 'src/stores/ui';
+import { usePWAUpdate } from 'src/composables/usePWAUpdate';
+import UpdateManager from './UpdateManager.vue';
 
 const uiStore = useUiStore();
 
-const resetServiceWorker = async () => {
-  if ('serviceWorker' in navigator) {
-    try {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
-      }
-      // Clear cache
-      const cacheNames = await caches.keys();
-      for (const cacheName of cacheNames) {
-        await caches.delete(cacheName);
-      }
-      // Reload page
-      window.location.reload();
-    } catch (error) {
-      console.error('Failed to reset service worker:', error);
-    }
-  }
+// PWA Update detection
+const { updateAvailable } = usePWAUpdate();
+
+// Update Manager modal
+const showUpdateManager = ref(false);
+
+const openUpdateManager = () => {
+  showUpdateManager.value = true;
 };
 </script>
 
