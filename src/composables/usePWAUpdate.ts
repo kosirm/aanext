@@ -104,41 +104,20 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - clear cache and reload
+  // Install update - just reload the page
+  // The service worker with skipWaiting and clientsClaim will handle the rest
   const installUpdate = async () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔄 INSTALLING UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`   Current version: ${currentVersion.value}`);
     console.log(`   Target version: ${latestVersion.value}`);
+    console.log('   Action: Reloading page to activate new service worker...');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    try {
-      // Step 1: Unregister service worker
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        console.log(`   Step 1: Unregistering ${registrations.length} service worker(s)...`);
-        for (const registration of registrations) {
-          await registration.unregister();
-        }
-      }
-
-      // Step 2: Clear all caches
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        console.log(`   Step 2: Clearing ${cacheNames.length} cache(s)...`);
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-      }
-
-      console.log('   Step 3: Reloading page...');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-      // Step 3: Force reload from server (use replace to avoid self-assignment)
-      window.location.replace(window.location.href);
-    } catch (error) {
-      console.error('❌ Error during update:', error);
-      // Fallback: just reload
-      window.location.reload();
-    }
+    // Just reload - the new service worker will take over automatically
+    // because we have skipWaiting: true and clientsClaim: true
+    window.location.reload();
   };
 
   // Initialize on mount
