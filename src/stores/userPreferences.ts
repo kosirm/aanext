@@ -42,8 +42,9 @@ export const useUserPreferencesStore = defineStore('userPreferences', () => {
 
   // Update the theme-color meta tag to match current theme
   const updateThemeColor = () => {
-    // Find the current theme configuration
-    const currentTheme = themes.find(t => t.id === themeName.value) || themes[0];
+    // Find the current theme configuration (fallback to default theme)
+    const currentTheme = themes.find(t => t.id === themeName.value);
+    if (!currentTheme) return;
 
     // Get the primary color based on current mode (light/dark)
     const primaryColor = themeMode.value === 'light'
