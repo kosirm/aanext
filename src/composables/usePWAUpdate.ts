@@ -104,20 +104,45 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - just reload the page
-  // The service worker with skipWaiting and clientsClaim will handle the rest
-  const installUpdate = () => {
+  // Install update - tell waiting service worker to skip waiting, then reload
+  const installUpdate = async () => {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('🔄 INSTALLING UPDATE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log(`   Current version: ${currentVersion.value}`);
     console.log(`   Target version: ${latestVersion.value}`);
-    console.log('   Action: Reloading page to activate new service worker...');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // Just reload - the new service worker will take over automatically
-    // because we have skipWaiting: true and clientsClaim: true
-    window.location.reload();
+    try {
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration();
+
+        if (registration && registration.waiting) {
+          console.log('   Step 1: Telling waiting service worker to skip waiting...');
+
+          // Listen for the controlling service worker change
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('   Step 2: New service worker activated! Reloading page...');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            window.location.reload();
+          });
+
+          // Tell the waiting service worker to skip waiting
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+          console.log('   No waiting service worker found. Just reloading...');
+          console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+          window.location.reload();
+        }
+      } else {
+        console.log('   Service Worker not supported. Just reloading...');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('❌ Error during update:', error);
+      console.log('   Fallback: Just reloading...');
+      window.location.reload();
+    }
   };
 
   // Initialize on mount

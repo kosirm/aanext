@@ -165,10 +165,10 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const handleUpdate = () => {
+const handleUpdate = async () => {
   isUpdating.value = true;
   try {
-    installUpdate();
+    await installUpdate();
     // Page will reload automatically
   } catch (error) {
     console.error('Update failed:', error);
