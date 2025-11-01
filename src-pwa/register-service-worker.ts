@@ -24,37 +24,6 @@ register(process.env.SERVICE_WORKER_FILE, {
   registered (registration) {
     console.log('✅ Service Worker: Registered - Service worker has been registered.');
     console.log('   Registration:', registration);
-
-    // Set up update detection like in the old site
-    registration.onupdatefound = () => {
-      const installingWorker = registration.installing;
-      if (installingWorker == null) {
-        return;
-      }
-
-      console.log('🔄 Service Worker: Update Found - New service worker is installing...');
-
-      installingWorker.onstatechange = () => {
-        console.log(`   Service Worker state changed to: ${installingWorker.state}`);
-
-        if (installingWorker.state === 'installed') {
-          if (navigator.serviceWorker.controller) {
-            // There's an old service worker, tell the new one to skip waiting
-            console.log('   Telling new service worker to skip waiting...');
-            registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
-            console.log('🎉 Service Worker: New version installed and activated!');
-
-            // Notify the app that an update is available
-            notifyUpdateAvailable();
-          } else {
-            // First install
-            console.log('✅ Service Worker: Content cached for offline use (first install).');
-          }
-        } else if (installingWorker.state === 'activated') {
-          console.log('✅ Service Worker: Activated - New version is now active.');
-        }
-      };
-    };
   },
 
   cached (registration) {
@@ -63,13 +32,25 @@ register(process.env.SERVICE_WORKER_FILE, {
   },
 
   updatefound (registration) {
-    console.log('🔄 Service Worker: Update Found (legacy callback)');
+    console.log('🔄 Service Worker: Update Found - New service worker is installing...');
     console.log('   Registration:', registration);
   },
 
   updated (registration) {
-    console.log('🎉 Service Worker: Updated (legacy callback)');
+    console.log('🎉 Service Worker: Updated - New service worker is installed and waiting!');
     console.log('   Registration:', registration);
+
+    // Tell the new service worker to skip waiting
+    if (registration.waiting) {
+      console.log('   Telling new service worker to skip waiting...');
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      console.log('   SKIP_WAITING message sent!');
+    } else {
+      console.log('   ⚠️ No waiting service worker found!');
+    }
+
+    // Notify the app that an update is available
+    notifyUpdateAvailable();
   },
 
   offline () {
