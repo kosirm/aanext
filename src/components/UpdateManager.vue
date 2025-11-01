@@ -59,22 +59,22 @@
             Imate najnoviju verziju aplikacije.
           </div>
 
-          <!-- Manual check button -->
+          <!-- Show changelog button -->
           <q-btn
             flat
             color="primary"
             class="full-width q-mt-sm"
-            icon="refresh"
-            label="Provjeri ažuriranja"
-            @click="handleCheckUpdate"
+            icon="history"
+            label="Povijest ažuriranja"
+            @click="handleShowChangelog"
             :loading="isCheckingForUpdate"
           />
         </div>
 
-        <q-separator class="q-my-md" />
+        <!-- Changelog (shown only after button click) -->
+        <div v-if="showChangelog" class="changelog-section">
+          <q-separator class="q-my-md" />
 
-        <!-- Changelog -->
-        <div class="changelog-section">
           <div class="text-subtitle1 q-mb-md">Povijest ažuriranja</div>
 
           <q-scroll-area
@@ -85,7 +85,6 @@
               <q-timeline-entry
                 v-for="update in updates"
                 :key="update.version"
-                :title="`v${update.version}`"
                 :subtitle="formatDate(update.date)"
                 icon="package_2"
               >
@@ -128,6 +127,7 @@ const isOpen = computed({
 });
 
 const isUpdating = ref(false);
+const showChangelog = ref(false);
 
 // PWA Update composable
 const {
@@ -176,8 +176,12 @@ const handleUpdate = () => {
   }
 };
 
-const handleCheckUpdate = async () => {
-  await checkForUpdate();
+const handleShowChangelog = async () => {
+  // Load changelog if not already loaded
+  if (!showChangelog.value) {
+    await checkForUpdate();
+  }
+  showChangelog.value = true;
 };
 </script>
 

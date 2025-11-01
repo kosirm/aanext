@@ -2,14 +2,16 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 import type { Changelog } from 'src/types/changelog';
 
+// Global singleton state (shared across all instances)
+const updateAvailable = ref(false);
+const currentVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
+const latestVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
+const changelog = ref<Changelog | null>(null);
+const isCheckingForUpdate = ref(false);
+const swUpdateReady = ref(false); // Service worker has new version ready
+let isInitialized = false; // Track if event listeners are already set up
+
 export function usePWAUpdate() {
-  const updateAvailable = ref(false);
-  const currentVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
-  const latestVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
-  const changelog = ref<Changelog | null>(null);
-  const isCheckingForUpdate = ref(false);
-  const updateCheckInterval = ref<number | null>(null);
-  const swUpdateReady = ref(false); // Service worker has new version ready
 
   // Compare semantic versions
   const compareVersions = (v1: string, v2: string): number => {
@@ -85,21 +87,21 @@ export function usePWAUpdate() {
     window.location.reload();
   };
 
-  // Initialize on mount
+  // Initialize on mount (only once globally)
   onMounted(() => {
-    // Listen for service worker update events
-    // The SW will automatically detect updates and fire these events
-    window.addEventListener('swUpdated', handleSWUpdate);
-    window.addEventListener('swActivated', handleSWActivated);
+    if (!isInitialized) {
+      isInitialized = true;
+      // Listen for service worker update events
+      // The SW will automatically detect updates and fire these events
+      window.addEventListener('swUpdated', handleSWUpdate);
+      window.addEventListener('swActivated', handleSWActivated);
+    }
   });
 
-  // Cleanup on unmount
+  // Note: We don't remove event listeners on unmount because they're global
+  // and should persist for the lifetime of the app
   onUnmounted(() => {
-    if (updateCheckInterval.value !== null) {
-      clearInterval(updateCheckInterval.value);
-    }
-    window.removeEventListener('swUpdated', handleSWUpdate);
-    window.removeEventListener('swActivated', handleSWActivated);
+    // Keep event listeners active
   });
 
   return {
