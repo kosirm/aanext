@@ -9,6 +9,16 @@ const notifyUpdateAvailable = () => {
   window.dispatchEvent(new CustomEvent('swUpdated'));
 };
 
+// Listen for when the new service worker takes control
+// This happens after skipWaiting() is called and the new SW activates
+let refreshing = false;
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+  if (refreshing) return;
+  console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
+  refreshing = true;
+  window.location.reload();
+});
+
 register(process.env.SERVICE_WORKER_FILE, {
   // The registrationOptions object will be passed as the second argument
   // to ServiceWorkerContainer.register()
