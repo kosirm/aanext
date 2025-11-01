@@ -25,16 +25,13 @@ if ('serviceWorker' in navigator) {
               registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
               console.log('NOVA VERZIJA APLIKACIJE JE INSTALIRANA');
 
-              // Notify the app that an update is available (but not ready yet)
+              // Notify the app that an update is available
               window.dispatchEvent(new CustomEvent('swUpdated'));
             }
           } else if (installingWorker.state === 'activating') {
             console.log('DEBUG: SW is activating...');
           } else if (installingWorker.state === 'activated') {
             console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
-
-            // Notify the app that the new SW is activated and ready
-            window.dispatchEvent(new CustomEvent('swActivated'));
           }
         };
       };

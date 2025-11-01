@@ -25,18 +25,11 @@ export function usePWAUpdate() {
     return 0;
   };
 
-  // Listen for service worker update event (SW installed, waiting for activation)
+  // Listen for service worker update event
   const handleSWUpdate = () => {
     swUpdateReady.value = true;
-    // Don't show update indicator yet - wait for activation
-    // Just fetch the version info silently
+    // Check version to update UI
     void checkForUpdate();
-  };
-
-  // Listen for service worker activation event (SW activated and ready)
-  const handleSWActivated = () => {
-    // NOW we can show the update indicator
-    updateAvailable.value = true;
   };
 
   // Check for version update
@@ -70,9 +63,7 @@ export function usePWAUpdate() {
       const hasUpdate = comparison > 0;
 
       if (hasUpdate) {
-        // DON'T set updateAvailable.value = true yet!
-        // Only log and trigger SW update check
-        // The updateAvailable will be set when SW is activated (handleSWActivated)
+        updateAvailable.value = true;
         console.log(`UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
 
         // Stop checking once update is detected
@@ -107,7 +98,6 @@ export function usePWAUpdate() {
   onMounted(() => {
     // Listen for service worker update events
     window.addEventListener('swUpdated', handleSWUpdate);
-    window.addEventListener('swActivated', handleSWActivated);
 
     // Initial check
     void checkForUpdate();
@@ -124,7 +114,6 @@ export function usePWAUpdate() {
       clearInterval(updateCheckInterval.value);
     }
     window.removeEventListener('swUpdated', handleSWUpdate);
-    window.removeEventListener('swActivated', handleSWActivated);
   });
 
   return {
