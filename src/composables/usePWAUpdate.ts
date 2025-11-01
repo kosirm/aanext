@@ -25,16 +25,21 @@ export function usePWAUpdate() {
     return 0;
   };
 
-  // Listen for service worker update event
+  // Listen for service worker update event (fired when SW is installed)
   const handleSWUpdate = () => {
     swUpdateReady.value = true;
-    // Check version to update UI
+    // Don't check yet - wait for activation
+  };
+
+  // Listen for service worker activation event (fired when SW is activated)
+  const handleSWActivated = () => {
+    // NOW check version and show update UI
     void checkForUpdate();
   };
 
-  // Check for version update
+  // Check for version update (called only when SW detects an update)
   const checkForUpdate = async () => {
-    // If update already detected, stop checking
+    // If update already detected, don't check again
     if (updateAvailable.value) {
       return;
     }
@@ -65,20 +70,6 @@ export function usePWAUpdate() {
       if (hasUpdate) {
         updateAvailable.value = true;
         console.log(`UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
-
-        // Stop checking once update is detected
-        if (updateCheckInterval.value !== null) {
-          clearInterval(updateCheckInterval.value);
-          updateCheckInterval.value = null;
-        }
-
-        // Trigger ONE service worker update check
-        if ('serviceWorker' in navigator) {
-          const registration = await navigator.serviceWorker.getRegistration();
-          if (registration) {
-            await registration.update();
-          }
-        }
       }
     } catch (error) {
       console.error('Error checking for update:', error);
@@ -97,15 +88,9 @@ export function usePWAUpdate() {
   // Initialize on mount
   onMounted(() => {
     // Listen for service worker update events
+    // The SW will automatically detect updates and fire these events
     window.addEventListener('swUpdated', handleSWUpdate);
-
-    // Initial check
-    void checkForUpdate();
-
-    // Check for updates every 60 seconds
-    updateCheckInterval.value = window.setInterval(() => {
-      void checkForUpdate();
-    }, 60000);
+    window.addEventListener('swActivated', handleSWActivated);
   });
 
   // Cleanup on unmount
@@ -114,6 +99,7 @@ export function usePWAUpdate() {
       clearInterval(updateCheckInterval.value);
     }
     window.removeEventListener('swUpdated', handleSWUpdate);
+    window.removeEventListener('swActivated', handleSWActivated);
   });
 
   return {

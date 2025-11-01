@@ -32,6 +32,9 @@ if ('serviceWorker' in navigator) {
             console.log('DEBUG: SW is activating...');
           } else if (installingWorker.state === 'activated') {
             console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
+
+            // Notify the app that the new SW is activated and ready
+            window.dispatchEvent(new CustomEvent('swActivated'));
           }
         };
       };

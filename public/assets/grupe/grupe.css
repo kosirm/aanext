@@ -22,12 +22,6 @@
     background-position: center;
 }
 
-.g-5 {
-    background-image: url("images/absolute-beginners.png");
-    background-size: cover;
-    background-position: center;
-}
-
 .card-text-grupe {
     font-family: "Roboto Condensed", sans-serif;
     font-weight: bold;
