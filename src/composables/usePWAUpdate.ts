@@ -34,6 +34,11 @@ export function usePWAUpdate() {
 
   // Check for version update
   const checkForUpdate = async () => {
+    // If update already detected, stop checking
+    if (updateAvailable.value) {
+      return;
+    }
+
     isCheckingForUpdate.value = true;
 
     try {
@@ -56,17 +61,23 @@ export function usePWAUpdate() {
       // Check if update is available
       const comparison = compareVersions(serverVersion, currentVersion.value);
       const hasUpdate = comparison > 0;
-      updateAvailable.value = hasUpdate;
 
       if (hasUpdate) {
+        updateAvailable.value = true;
         console.log(`UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
-      }
 
-      // Trigger service worker update check
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          await registration.update();
+        // Stop checking once update is detected
+        if (updateCheckInterval.value !== null) {
+          clearInterval(updateCheckInterval.value);
+          updateCheckInterval.value = null;
+        }
+
+        // Trigger ONE service worker update check
+        if ('serviceWorker' in navigator) {
+          const registration = await navigator.serviceWorker.getRegistration();
+          if (registration) {
+            await registration.update();
+          }
         }
       }
     } catch (error) {
