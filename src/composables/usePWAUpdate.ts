@@ -76,11 +76,9 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - the controllerchange event will handle the reload
-  // We just need to trigger it by reloading once
+  // Install update - just reload the page
+  // The new service worker has already been activated (via SKIP_WAITING message)
   const installUpdate = () => {
-    // The new service worker is already activated (via SKIP_WAITING)
-    // Just reload - the controllerchange event will fire and reload again if needed
     window.location.reload();
   };
 

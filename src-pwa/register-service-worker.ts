@@ -2,6 +2,12 @@
 // This is more reliable than the register-service-worker library
 
 if ('serviceWorker' in navigator) {
+  // Listen for when the new service worker takes control
+  // This happens after skipWaiting() is called
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
+  });
+
   navigator.serviceWorker
     .register(process.env.SERVICE_WORKER_FILE)
     .then((registration) => {
@@ -26,8 +32,6 @@ if ('serviceWorker' in navigator) {
               // Notify the app that an update is available
               window.dispatchEvent(new CustomEvent('swUpdated'));
             }
-          } else if (installingWorker.state === 'activated') {
-            console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
           }
         };
       };
