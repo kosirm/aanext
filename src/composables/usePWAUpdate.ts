@@ -76,12 +76,11 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - do nothing, the controllerchange event will reload automatically
-  // The SKIP_WAITING message has already been sent when the update was detected
-  // When the new SW activates and takes control, controllerchange fires and reloads
+  // Install update - just reload the page
+  // The new SW has already been activated (we got NOVA VERZIJA APLIKACIJE JE AKTIVIRANA)
+  // So we can safely reload and the new SW will serve the new version
   const installUpdate = () => {
-    console.log('User clicked update button - waiting for controllerchange event...');
-    // The page will reload automatically when the new SW takes control
+    window.location.reload();
   };
 
   // Initialize on mount
