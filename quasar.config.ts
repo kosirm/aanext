@@ -190,7 +190,7 @@ export default defineConfig((ctx) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
+      workboxMode: 'InjectManifest', // 'GenerateSW' or 'InjectManifest'
       // swFilename: 'sw.js',
       // manifestFilename: 'manifest.json',
       extendManifestJson(json) {
@@ -206,67 +206,8 @@ export default defineConfig((ctx) => {
       // useCredentialsForManifestTag: true,
       // injectPwaMetaTags: false,
       // extendPWACustomSWConf (esbuildConf) {},
-      extendGenerateSWOptions(cfg) {
-        // Set skipWaiting to false so Workbox adds the message listener automatically
-        // This allows us to call skipWaiting() manually via postMessage
-        cfg.skipWaiting = false;
-        cfg.clientsClaim = true;
-        cfg.runtimeCaching = [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts',
-              expiration: {
-                maxEntries: 30,
-              },
-            },
-          },
-          {
-            urlPattern: /\.(?:png|gif|jpg|jpeg|svg)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 60,
-                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-              },
-            },
-          },
-          {
-            // Cache JSON files EXCEPT version.json and changelog.json
-            urlPattern: ({ url }) => {
-              return url.pathname.endsWith('.json') &&
-                     !url.pathname.includes('version.json') &&
-                     !url.pathname.includes('changelog.json');
-            },
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'json-data',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
-              },
-            },
-          },
-          {
-            // Always fetch version.json and changelog.json from network first
-            // Falls back to cache if offline
-            urlPattern: ({ url }) => {
-              return url.pathname.includes('version.json') ||
-                     url.pathname.includes('changelog.json');
-            },
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'version-data',
-              networkTimeoutSeconds: 3,
-              expiration: {
-                maxAgeSeconds: 60, // Cache for only 60 seconds
-              },
-            },
-          },
-        ];
-      },
+
+      // InjectManifest mode - caching strategies are defined in custom-service-worker.ts
       // extendInjectManifestOptions (cfg) {}
     },
 
