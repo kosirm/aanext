@@ -3,16 +3,49 @@
   "updates": [
     {
       "version": "0.0.2",
-      "date": "2025-10-31",
+      "date": "2025-10-5",
       "title": "Verzija 4",
       "changes": [
-        "Nova PWA aplikacija za AA Hrvatska",
+        "PWA Verzija 4 za AA Hrvatska",
+        "Nova arhitektura (Quasar framework)",
         "Sustav tema s podrškom za tamni način",
-        "Literatura stranica s knjigama i dnevnim razmišljanjima",
-        "Kalkulator trijeznosti",
-        "Informacije o sastancima"
+        "Male promjene u dizajnu"
+      ]
+    },
+    {
+      "version": "0.0.3",
+      "date": "2025-10-15",
+      "title": "Verzija 4.1",
+      "changes": [
+        "PWA Verzija 4 za AA Hrvatska",
+        "Nova arhitektura (Quasar framework)",
+        "Sustav tema s podrškom za tamni način",
+        "Male promjene u dizajnu"
+      ]
+    },
+        {
+      "version": "0.0.4",
+      "date": "2025-10-20",
+      "title": "Verzija 4.2",
+      "changes": [
+        "PWA Verzija 4 za AA Hrvatska",
+        "Nova arhitektura (Quasar framework)",
+        "Sustav tema s podrškom za tamni način",
+        "Male promjene u dizajnu"
+      ]
+    },
+        {
+      "version": "0.0.5",
+      "date": "2025-10-21",
+      "title": "Verzija 4.3",
+      "changes": [
+        "PWA Verzija 4 za AA Hrvatska",
+        "Nova arhitektura (Quasar framework)",
+        "Sustav tema s podrškom za tamni način",
+        "Male promjene u dizajnu"
       ]
     }
+
+
   ]
 }
-

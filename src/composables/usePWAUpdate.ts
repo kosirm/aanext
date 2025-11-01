@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import type { Changelog } from 'src/types/changelog';
 
@@ -8,7 +8,6 @@ const currentVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
 const latestVersion = ref(import.meta.env.VITE_APP_VERSION || '0.0.1');
 const changelog = ref<Changelog | null>(null);
 const isCheckingForUpdate = ref(false);
-const swUpdateReady = ref(false); // Service worker has new version ready
 let isInitialized = false; // Track if event listeners are already set up
 
 export function usePWAUpdate() {
@@ -29,7 +28,6 @@ export function usePWAUpdate() {
 
   // Listen for service worker update event (fired when SW is installed)
   const handleSWUpdate = () => {
-    swUpdateReady.value = true;
     // Don't check yet - wait for activation
   };
 
@@ -71,7 +69,6 @@ export function usePWAUpdate() {
 
       if (hasUpdate) {
         updateAvailable.value = true;
-        console.log(`UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
       }
     } catch (error) {
       console.error('Error checking for update:', error);
@@ -96,12 +93,6 @@ export function usePWAUpdate() {
       window.addEventListener('swUpdated', handleSWUpdate);
       window.addEventListener('swActivated', handleSWActivated);
     }
-  });
-
-  // Note: We don't remove event listeners on unmount because they're global
-  // and should persist for the lifetime of the app
-  onUnmounted(() => {
-    // Keep event listeners active
   });
 
   return {

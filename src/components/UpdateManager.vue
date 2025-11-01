@@ -81,7 +81,7 @@
             style="height: 300px"
             :thumb-style="thumbStyle"
           >
-            <q-timeline color="primary">
+            <q-timeline color="primary" class="timeline-offset">
               <q-timeline-entry
                 v-for="update in updates"
                 :key="update.version"
@@ -229,6 +229,10 @@ const handleShowChangelog = async () => {
 
 :deep(.q-timeline__subtitle) {
   opacity: 0.7;
+}
+
+.timeline-offset {
+  padding-left: 15px;
 }
 </style>
 
