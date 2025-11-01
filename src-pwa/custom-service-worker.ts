@@ -7,9 +7,7 @@
  */
 
 /* eslint-disable */
-declare const self: ServiceWorkerGlobalScope & {
-  skipWaiting(): void;
-};
+declare const self: any;
 
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
@@ -38,11 +36,14 @@ registerRoute(
 
 // Listen for SKIP_WAITING message (CRITICAL - same as old site!)
 addEventListener('message', (event) => {
-  console.log('🔔 Service Worker received message:', event.data);
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('⏭️ Service Worker: Calling skipWaiting()...');
     self.skipWaiting();
   }
 });
 
-console.log('🚀 Service Worker: Loaded and ready');
+// Take control of all clients immediately after activation
+addEventListener('activate', (event: any) => {
+  event.waitUntil(
+    self.clients.claim()
+  );
+});
