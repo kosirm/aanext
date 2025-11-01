@@ -33,7 +33,17 @@ register(process.env.SERVICE_WORKER_FILE, {
   registered (registration) {
     console.log('APLIKACIJA JE REGISTRIRANA');
 
-    // Set up update detection
+    // Check if there's already a waiting service worker
+    if (registration.waiting) {
+      console.log('POSTOJI NOVA VERZIJA APLIKACIJE (already waiting)');
+      // Tell it to skip waiting
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      console.log('NOVA VERZIJA APLIKACIJE JE INSTALIRANA');
+      // Notify the app
+      notifyUpdateAvailable();
+    }
+
+    // Set up update detection for future updates
     registration.onupdatefound = () => {
       const installingWorker = registration.installing;
       if (installingWorker == null) {
