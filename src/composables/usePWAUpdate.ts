@@ -76,10 +76,12 @@ export function usePWAUpdate() {
     }
   };
 
-  // Install update - just reload the page
-  // The new service worker has already been activated (via SKIP_WAITING message)
+  // Install update - do nothing, the controllerchange event will reload automatically
+  // The SKIP_WAITING message has already been sent when the update was detected
+  // When the new SW activates and takes control, controllerchange fires and reloads
   const installUpdate = () => {
-    window.location.reload();
+    console.log('User clicked update button - waiting for controllerchange event...');
+    // The page will reload automatically when the new SW takes control
   };
 
   // Initialize on mount

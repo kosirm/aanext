@@ -2,6 +2,17 @@
 // This is more reliable than the register-service-worker library
 
 if ('serviceWorker' in navigator) {
+  // Listen for when the new service worker takes control
+  // This is the ONLY reliable way to know when to reload
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
+    refreshing = true;
+    // Reload to use the new service worker
+    window.location.reload();
+  });
+
   navigator.serviceWorker
     .register(process.env.SERVICE_WORKER_FILE)
     .then((registration) => {
@@ -26,8 +37,6 @@ if ('serviceWorker' in navigator) {
               // Notify the app that an update is available
               window.dispatchEvent(new CustomEvent('swUpdated'));
             }
-          } else if (installingWorker.state === 'activated') {
-            console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
           }
         };
       };
