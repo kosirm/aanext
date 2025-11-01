@@ -16,48 +16,56 @@ register(process.env.SERVICE_WORKER_FILE, {
 
   // registrationOptions: { scope: './' },
 
-  ready (registration) {
-    console.log('✅ Service Worker: Ready - Service worker is active.');
-    console.log('   Registration:', registration);
+  ready () {
+    // Service worker is active and ready
   },
 
   registered (registration) {
-    console.log('✅ Service Worker: Registered - Service worker has been registered.');
-    console.log('   Registration:', registration);
+    console.log('APLIKACIJA JE REGISTRIRANA');
+
+    // Set up update detection
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
+      if (installingWorker == null) {
+        return;
+      }
+
+      console.log('POSTOJI NOVA VERZIJA APLIKACIJE');
+
+      installingWorker.onstatechange = () => {
+        if (installingWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // There's an old service worker, tell the new one to skip waiting
+            registration.waiting?.postMessage({ type: 'SKIP_WAITING' });
+            console.log('NOVA VERZIJA APLIKACIJE JE INSTALIRANA');
+
+            // Notify the app that an update is available
+            notifyUpdateAvailable();
+          }
+        } else if (installingWorker.state === 'activated') {
+          console.log('NOVA VERZIJA APLIKACIJE JE AKTIVIRANA');
+        }
+      };
+    };
   },
 
-  cached (registration) {
-    console.log('✅ Service Worker: Cached - Content has been cached for offline use.');
-    console.log('   Registration:', registration);
+  cached () {
+    // Content has been cached for offline use
   },
 
-  updatefound (registration) {
-    console.log('🔄 Service Worker: Update Found - New service worker is installing...');
-    console.log('   Registration:', registration);
+  updatefound () {
+    // New service worker is being installed (handled in registered callback)
   },
 
-  updated (registration) {
-    console.log('🎉 Service Worker: Updated - New service worker is installed and waiting!');
-    console.log('   Registration:', registration);
-
-    // Tell the new service worker to skip waiting
-    if (registration.waiting) {
-      console.log('   Telling new service worker to skip waiting...');
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      console.log('   SKIP_WAITING message sent!');
-    } else {
-      console.log('   ⚠️ No waiting service worker found!');
-    }
-
-    // Notify the app that an update is available
-    notifyUpdateAvailable();
+  updated () {
+    // New service worker is installed (handled in registered callback)
   },
 
   offline () {
-    console.log('📴 Service Worker: Offline - No internet connection found. App is running in offline mode.');
+    console.log('📴 Offline - No internet connection.');
   },
 
   error (err) {
-    console.error('❌ Service Worker: Error during service worker registration:', err);
+    console.error('❌ Service Worker Error:', err);
   },
 });

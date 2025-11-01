@@ -27,7 +27,6 @@ export function usePWAUpdate() {
 
   // Listen for service worker update event
   const handleSWUpdate = () => {
-    console.log('🎉 Received swUpdated event - new version is ready!');
     swUpdateReady.value = true;
     // Check version to update UI
     void checkForUpdate();
@@ -38,12 +37,6 @@ export function usePWAUpdate() {
     isCheckingForUpdate.value = true;
 
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🔍 PWA Update Check Started');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(`📱 Current version (from build): ${currentVersion.value}`);
-      console.log(`   VITE_APP_VERSION: ${import.meta.env.VITE_APP_VERSION}`);
-
       // Fetch latest version from server
       const versionResponse = await axios.get<{ version: string }>('/version.json', {
         params: { t: Date.now() },
@@ -53,78 +46,43 @@ export function usePWAUpdate() {
       const serverVersion = versionResponse.data.version;
       latestVersion.value = serverVersion;
 
-      console.log(`🌐 Latest version (from server): ${serverVersion}`);
-
       // Load changelog
       const changelogResponse = await axios.get<Changelog>('/changelog.json', {
         params: { t: Date.now() },
         headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
       });
       changelog.value = changelogResponse.data;
-      console.log(`📋 Changelog loaded: ${changelog.value.updates.length} entries`);
 
       // Check if update is available
       const comparison = compareVersions(serverVersion, currentVersion.value);
       const hasUpdate = comparison > 0;
       updateAvailable.value = hasUpdate;
 
-      console.log(`🔢 Version comparison: ${serverVersion} vs ${currentVersion.value} = ${comparison}`);
-
       if (hasUpdate) {
-        console.log(`✅ UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
-        console.log(`   User should click "Pokreni ažuriranje" to reload`);
-      } else if (comparison < 0) {
-        console.log(`⚠️  Server version is OLDER than current version!`);
-      } else {
-        console.log(`✅ App is UP TO DATE: ${currentVersion.value}`);
+        console.log(`UPDATE AVAILABLE: ${currentVersion.value} → ${serverVersion}`);
       }
 
-      // Check service worker status
+      // Trigger service worker update check
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
-          console.log('🔄 Service Worker Status:');
-          console.log(`   - Installing: ${registration.installing ? 'YES' : 'NO'}`);
-          console.log(`   - Waiting: ${registration.waiting ? 'YES' : 'NO'}`);
-          console.log(`   - Active: ${registration.active ? 'YES' : 'NO'}`);
-          console.log('🔄 Triggering service worker update check...');
           await registration.update();
-        } else {
-          console.log('⚠️  No service worker registration found');
         }
-      } else {
-        console.log('⚠️  Service Worker API not available');
       }
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } catch (error) {
-      console.error('❌ Error checking for update:', error);
+      console.error('Error checking for update:', error);
     } finally {
       isCheckingForUpdate.value = false;
     }
   };
 
   // Install update - just reload the page
-  // The new service worker has already been activated automatically (via SKIP_WAITING)
   const installUpdate = () => {
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('🔄 INSTALLING UPDATE');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`   Current version: ${currentVersion.value}`);
-    console.log(`   Target version: ${latestVersion.value}`);
-    console.log('   Action: Reloading page...');
-    console.log('   (New service worker already activated)');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-    // Just reload - the new service worker is already active
     window.location.reload();
   };
 
   // Initialize on mount
   onMounted(() => {
-    console.log('🚀 PWA Update Manager: Initializing...');
-    console.log(`   Current version: ${currentVersion.value}`);
-
     // Listen for service worker update events
     window.addEventListener('swUpdated', handleSWUpdate);
 
@@ -133,7 +91,6 @@ export function usePWAUpdate() {
 
     // Check for updates every 60 seconds
     updateCheckInterval.value = window.setInterval(() => {
-      console.log('⏰ Periodic update check...');
       void checkForUpdate();
     }, 60000);
   });
