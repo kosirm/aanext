@@ -10,7 +10,7 @@
       <div class="mbr-overlay"></div>
       <div class="hero-content q-pa-xl text-white text-center">
         <h1 class="text-h1 q-mb-md header-title">
-          <strong>Anonimni Alkoholičari Hrvatske 40</strong>
+          <strong>Anonimni Alkoholičari Hrvatske 41</strong>
         </h1>
         <p class="text-h4 q-mb-lg">Grupa Prvi Korak Osijek</p>
         <p class="text-italic text-h5 q-mb-xl">Dovedi tijelo i um će ga slijediti.</p>
