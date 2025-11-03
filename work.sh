@@ -406,6 +406,14 @@ run_quasar_dev() {
     esac
 }
 
+# Function to run Theme Designer UI
+run_theme_designer() {
+    echo "Starting Theme Designer UI..."
+    cd ../theme-designer/UI
+    python -m streamlit run app.py
+    cd ../../aahrvatska
+}
+
 # Main script
 check_git_repo
 
@@ -475,6 +483,9 @@ case "$1" in
 "q"|"quasar")
     run_quasar_dev "$2"
     ;;
+"theme")
+    run_theme_designer
+    ;;
 *)
     echo "AA Hrvatska - Work Script"
     echo "========================="
@@ -489,6 +500,9 @@ case "$1" in
     echo "  q build-pwa                   - Build PWA"
     echo "  q serve-pwa                   - Build and serve PWA locally (http://localhost:8080)"
     echo "  q build-electron              - Build Electron app"
+    echo ""
+    echo "Theme Designer:"
+    echo "  theme                         - Open Theme Designer UI"
     echo ""
     echo "Git Workflow Commands:"
     echo "  start <branch-name>                      - Start a new task branch"
@@ -510,6 +524,7 @@ case "$1" in
     echo "  pdf <system|google> <font1> <font2>   - Generate all PDFs with custom fonts (legacy)"
     echo ""
     echo "Examples:"
+    echo "  w theme                       - Open Theme Designer UI"
     echo "  w q                           - Start dev server (no service worker)"
     echo "  w q -ds                       - Start dev server with service worker (SPA mode)"
     echo "  w q serve-pwa                 - Build and test PWA locally"

@@ -1267,6 +1267,7 @@ h2 {
 @media (max-width: 768px) {
   .header-title {
     line-height: 1.2;
+    font-family: var(--font-family-primary);
   }
 }
 </style>
