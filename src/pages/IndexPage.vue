@@ -1268,6 +1268,7 @@ h2 {
   .header-title {
     line-height: 1.2;
     font-family: var(--font-family-primary);
+    font-size: var(--font-size-2xl);
   }
 }
 </style>
