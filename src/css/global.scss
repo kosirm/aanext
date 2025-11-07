@@ -1,0 +1,219 @@
+/* ========================================
+   GLOBAL STYLES
+   Base classes used across all pages
+   ======================================== */
+
+/* ========================================
+   PAGE
+   ======================================== */
+.aa-page {
+  background-color: var(--page-background-color);
+  overflow-x: hidden;
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   TOP BAR
+   ======================================== */
+.aa-top-bar {
+  background-color: var(--top-bar-background-color);
+  color: var(--top-bar-color);
+  padding: var(--top-bar-padding);
+  font-family: var(--top-bar-font-family);
+  font-size: var(--top-bar-size);
+  font-weight: var(--top-bar-weight);
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.aa-footer {
+  background-color: var(--footer-background-color);
+  color: var(--footer-color);
+  padding: var(--footer-padding);
+  font-family: var(--footer-font-family);
+  font-size: var(--footer-size);
+}
+
+.aa-footer-logo {
+  height: var(--footer-logo-height);
+  width: var(--footer-logo-width);
+}
+
+.aa-footer-title {
+  font-family: var(--footer-title-font-family);
+  font-size: var(--footer-title-size);
+  font-weight: var(--footer-title-weight);
+  color: var(--footer-title-color);
+  padding: var(--footer-title-padding);
+  margin: var(--footer-title-margin);
+}
+
+.aa-footer-links {
+  padding: var(--footer-links-padding);
+  margin: var(--footer-links-margin);
+}
+
+/* ========================================
+   NOTIFICATION
+   ======================================== */
+.aa-notification {
+  background-color: var(--notification-background-color);
+  color: var(--notification-color);
+  padding: var(--notification-padding);
+  font-family: var(--notification-font-family);
+  font-size: var(--notification-size);
+  border-radius: var(--notification-border-radius);
+}
+
+/* ========================================
+   DRAWER
+   ======================================== */
+.aa-drawer {
+  background-color: var(--drawer-background-color);
+  color: var(--drawer-color);
+  padding: var(--drawer-padding);
+  font-family: var(--drawer-font-family);
+  font-size: var(--drawer-size);
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.aa-header {
+  background-color: var(--header-background-color);
+  color: var(--header-color);
+  padding: var(--header-padding);
+  font-family: var(--header-font-family);
+  font-size: var(--header-size);
+}
+
+/* ========================================
+   SECTION
+   ======================================== */
+.aa-section {
+  padding: var(--section-padding);
+  margin: var(--section-margin);
+  background-color: var(--section-background-color);
+  border-radius: var(--section-border-radius);
+}
+.aa-section-variant {
+  padding: var(--section-variant-padding);
+  margin: var(--section-variant-margin);
+  background-color: var(--section-variant-background-color);
+  border-radius: var(--section-variant-border-radius);
+}
+.aa-section-alternate {
+  padding: var(--section-alternate-padding);
+  margin: var(--section-alternate-margin);
+  background-color: var(--section-alternate-background-color);
+  border-radius: var(--section-alternate-border-radius);
+}
+
+/* ========================================
+   BUTTON
+   ======================================== */
+.aa-button {
+  font-family: var(--button-font-family);
+  font-size: var(--button-size);
+  font-weight: var(--button-weight);
+  color: var(--button-color);
+  background-color: var(--button-background-color);
+  padding: var(--button-padding);
+  border-radius: var(--button-border-radius);
+  border: var(--button-border);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.aa-button:hover {
+  background-color: var(--button-hover-background-color);
+  color: var(--button-hover-color);
+}
+
+/* ========================================
+   INPUT
+   ======================================== */
+.aa-input {
+  font-family: var(--input-font-family);
+  font-size: var(--input-size);
+  color: var(--input-color);
+  background-color: var(--input-background-color);
+  padding: var(--input-padding);
+  border: var(--input-border);
+  border-radius: var(--input-border-radius);
+}
+
+.aa-input:focus {
+  border-color: var(--input-focus-border-color);
+  outline: none;
+}
+
+/* ========================================
+   LINK
+   ======================================== */
+.aa-link {
+  color: var(--link-color);
+  text-decoration: var(--link-text-decoration);
+  transition: color 0.3s ease;
+}
+
+.aa-link:hover {
+  color: var(--link-hover-color);
+  text-decoration: var(--link-hover-text-decoration);
+}
+
+/* ========================================
+   IMAGE
+   ======================================== */
+.aa-image {
+  max-width: var(--image-max-width);
+  height: auto;
+  border-radius: var(--image-border-radius);
+}
+
+/* ========================================
+   VIDEO
+   ======================================== */
+.aa-video {
+  max-width: var(--video-max-width);
+  height: auto;
+  border-radius: var(--video-border-radius);
+}
+
+/* ========================================
+   TEXT
+   ======================================== */
+.aa-text {
+  font-family: var(--text-font-family);
+  font-size: var(--text-size);
+  color: var(--text-color);
+  line-height: var(--text-line-height);
+}
+
+/* ========================================
+   BADGE
+   ======================================== */
+.aa-badge {
+  background-color: var(--badge-background-color);
+  color: var(--badge-color);
+  padding: var(--badge-padding);
+  font-family: var(--badge-font-family);
+  font-size: var(--badge-size);
+  font-weight: var(--badge-weight);
+  border-radius: var(--badge-border-radius);
+}
+
+/* ========================================
+   MODAL
+   ======================================== */
+.aa-modal {
+  background-color: var(--modal-background-color);
+  color: var(--modal-color);
+  padding: var(--modal-padding);
+  font-family: var(--modal-font-family);
+  font-size: var(--modal-size);
+  border-radius: var(--modal-border-radius);
+  box-shadow: var(--modal-box-shadow);
+}
+

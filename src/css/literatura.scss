@@ -1,0 +1,180 @@
+/* ========================================
+   LITERATURA PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   LITERATURA HEADER SECTION
+   ======================================== */
+.section-literatura-header {
+  background-color: var(--section-literatura-header-background-color);
+  padding: var(--section-literatura-header-padding);
+  margin: var(--section-literatura-header-margin);
+}
+
+/* ========================================
+   DAILY REFLECTIONS SECTION
+   ======================================== */
+.section-daily-reflections {
+  background-color: var(--section-daily-reflections-background-color);
+  padding: var(--section-daily-reflections-padding);
+  margin: var(--section-daily-reflections-margin);
+}
+
+.daily-reflections-date {
+  font-family: var(--daily-reflections-date-font-family);
+  font-size: var(--daily-reflections-date-size);
+  font-weight: var(--daily-reflections-date-weight);
+  color: var(--daily-reflections-date-color);
+  line-height: var(--daily-reflections-date-line-height);
+  letter-spacing: var(--daily-reflections-date-letter-spacing);
+}
+
+.daily-reflections-title {
+  font-family: var(--daily-reflections-title-font-family);
+  font-size: var(--daily-reflections-title-size);
+  font-weight: var(--daily-reflections-title-weight);
+  color: var(--daily-reflections-title-color);
+  line-height: var(--daily-reflections-title-line-height);
+}
+
+.daily-reflections-header {
+  font-family: var(--daily-reflections-header-font-family);
+  font-size: var(--daily-reflections-header-size);
+  font-weight: var(--daily-reflections-header-weight);
+  color: var(--daily-reflections-header-color);
+}
+
+.daily-reflections-source {
+  font-family: var(--daily-reflections-source-font-family);
+  font-size: var(--daily-reflections-source-size);
+  font-style: var(--daily-reflections-source-font-style);
+  color: var(--daily-reflections-source-color);
+}
+
+.daily-reflections-text {
+  font-family: var(--daily-reflections-text-font-family);
+  font-size: var(--daily-reflections-text-size);
+  color: var(--daily-reflections-text-color);
+  line-height: var(--daily-reflections-text-line-height);
+}
+
+/* ========================================
+   LIBRARY SECTION
+   ======================================== */
+.section-library {
+  background-color: var(--section-library-background-color);
+  padding: var(--section-library-padding);
+}
+
+.card-library {
+  background-color: var(--card-library-background-color);
+  padding: var(--card-library-padding);
+  border-radius: var(--card-library-border-radius);
+  box-shadow: var(--card-library-box-shadow);
+}
+
+.library-title {
+  font-family: var(--library-title-font-family);
+  font-size: var(--library-title-size);
+  font-weight: var(--library-title-weight);
+  color: var(--library-title-color);
+}
+
+.library-text {
+  font-family: var(--library-text-font-family);
+  font-size: var(--library-text-size);
+  color: var(--library-text-color);
+  line-height: var(--library-text-line-height);
+}
+
+.library-button {
+  font-family: var(--library-button-font-family);
+  font-size: var(--library-button-size);
+  font-weight: var(--library-button-weight);
+  color: var(--library-button-color);
+  background-color: var(--library-button-background-color);
+  padding: var(--library-button-padding);
+  border-radius: var(--library-button-border-radius);
+}
+
+/* ========================================
+   READER SECTION
+   ======================================== */
+.section-reader {
+  background-color: var(--section-reader-background-color);
+  padding: var(--section-reader-padding);
+}
+
+.reader-title {
+  font-family: var(--reader-title-font-family);
+  font-size: var(--reader-title-size);
+  font-weight: var(--reader-title-weight);
+  color: var(--reader-title-color);
+}
+
+.reader-header {
+  font-family: var(--reader-header-font-family);
+  font-size: var(--reader-header-size);
+  font-weight: var(--reader-header-weight);
+  color: var(--reader-header-color);
+}
+
+.reader-subtitle {
+  font-family: var(--reader-subtitle-font-family);
+  font-size: var(--reader-subtitle-size);
+  color: var(--reader-subtitle-color);
+}
+
+.reader-subtitle-bold {
+  font-family: var(--reader-subtitle-bold-font-family);
+  font-size: var(--reader-subtitle-bold-size);
+  font-weight: var(--reader-subtitle-bold-weight);
+  color: var(--reader-subtitle-bold-color);
+}
+
+.reader-letter {
+  font-family: var(--reader-letter-font-family);
+  font-size: var(--reader-letter-size);
+  font-style: var(--reader-letter-font-style);
+  color: var(--reader-letter-color);
+}
+
+.reader-table {
+  border: var(--reader-table-border);
+  border-collapse: collapse;
+}
+
+.reader-table-header {
+  font-family: var(--reader-table-header-font-family);
+  font-size: var(--reader-table-header-size);
+  font-weight: var(--reader-table-header-weight);
+  color: var(--reader-table-header-color);
+  background-color: var(--reader-table-header-background-color);
+  padding: var(--reader-table-header-padding);
+}
+
+.reader-table-row {
+  font-family: var(--reader-table-row-font-family);
+  font-size: var(--reader-table-row-size);
+  color: var(--reader-table-row-color);
+  padding: var(--reader-table-row-padding);
+  border-bottom: var(--reader-table-row-border-bottom);
+}
+
+.reader-text {
+  font-family: var(--reader-text-font-family);
+  font-size: var(--reader-text-size);
+  color: var(--reader-text-color);
+  line-height: var(--reader-text-line-height);
+}
+
+.reader-button {
+  font-family: var(--reader-button-font-family);
+  font-size: var(--reader-button-size);
+  font-weight: var(--reader-button-weight);
+  color: var(--reader-button-color);
+  background-color: var(--reader-button-background-color);
+  padding: var(--reader-button-padding);
+  border-radius: var(--reader-button-border-radius);
+}
+

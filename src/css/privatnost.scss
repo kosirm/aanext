@@ -1,0 +1,26 @@
+/* ========================================
+   PRIVATNOST PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   PRIVACY HEADER SECTION
+   ======================================== */
+.section-privacy-header {
+  background-color: var(--section-privacy-header-background-color);
+  color: var(--section-privacy-header-color);
+  padding: var(--section-privacy-header-padding);
+  font-family: var(--section-privacy-header-font-family);
+  font-size: var(--section-privacy-header-size);
+}
+
+/* ========================================
+   CONTENT SECTION
+   ======================================== */
+.section-content {
+  background-color: var(--section-content-background-color);
+  color: var(--section-content-color);
+  padding: var(--section-content-padding);
+  font-family: var(--section-content-font-family);
+  font-size: var(--section-content-size);
+}
+

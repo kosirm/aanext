@@ -20,7 +20,14 @@ export default defineConfig((ctx) => {
     boot: ['i18n', 'axios', 'theme'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
-    css: ['app.scss'],
+    css: [
+      'app.scss',
+      'global.scss',
+      'oznake.scss',
+      'teme.scss',
+      'updates.scss',
+      'calculator.scss'
+    ],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
