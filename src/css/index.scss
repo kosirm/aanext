@@ -1,0 +1,92 @@
+/* ========================================
+   INDEX PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   INDEX HEADER SECTION
+   ======================================== */
+.section-index-header {
+  background-color: var(--section-index-header-background-color);
+  color: var(--section-index-header-color);
+  padding-left: var(--section-index-header-padding-left);
+  padding-right: var(--section-index-header-padding-right);
+  font-family: var(--section-index-header-font-family);
+  font-size: var(--section-index-header-font-size);
+}
+.index-header-overlay{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--index-header-overlay-background-color);
+      opacity: var(--index-header-overlay-opacity);
+}
+
+
+/* ========================================
+   THERE IS HOPE SECTION
+   ======================================== */
+.section-there-is-hope {
+  background-color: var(--section-there-is-hope-background-color);
+  color: var(--section-there-is-hope-color);
+  padding: var(--section-there-is-hope-padding);
+  font-family: var(--section-there-is-hope-font-family);
+  font-size: var(--section-there-is-hope-font-size);
+}
+
+/* ========================================
+   SWIPER SHORTCUTS SECTION
+   ======================================== */
+.section-swiper-shortcuts {
+  background-color: var(--section-swiper-shortcuts-background-color);
+  color: var(--section-swiper-shortcuts-color);
+  padding: var(--section-swiper-shortcuts-padding);
+  font-family: var(--section-swiper-shortcuts-font-family);
+  font-size: var(--section-swiper-shortcuts-font-size);
+}
+
+/* ========================================
+   MEETINGS SECTION
+   ======================================== */
+.section-meetings {
+  background-color: var(--section-meetings-background-color);
+  color: var(--section-meetings-color);
+  padding: var(--section-meetings-padding);
+  font-family: var(--section-meetings-font-family);
+  font-size: var(--section-meetings-font-size);
+}
+
+/* ========================================
+   CONTACT SECTION
+   ======================================== */
+.section-contact {
+  background-color: var(--section-contact-background-color);
+  color: var(--section-contact-color);
+  padding: var(--section-contact-padding);
+  font-family: var(--section-contact-font-family);
+  font-size: var(--section-contact-font-size);
+}
+
+/* ========================================
+   SWIPER NEIGHBORING GROUPS SECTION
+   ======================================== */
+.section-swiper-neighboring-groups {
+  background-color: var(--section-swiper-neighboring-groups-background-color);
+  color: var(--section-swiper-neighboring-groups-color);
+  padding: var(--section-swiper-neighboring-groups-padding);
+  font-family: var(--section-swiper-neighboring-groups-font-family);
+  font-size: var(--section-swiper-neighboring-groups-font-size);
+}
+
+/* ========================================
+   LIVE MEETINGS SECTION
+   ======================================== */
+.section-live-meetings {
+  background-color: var(--section-live-meetings-background-color);
+  color: var(--section-live-meetings-color);
+  padding: var(--section-live-meetings-padding);
+  font-family: var(--section-live-meetings-font-family);
+  font-size: var(--section-live-meetings-font-size);
+}
+

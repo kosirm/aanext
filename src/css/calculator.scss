@@ -1,0 +1,26 @@
+/* ========================================
+   CALCULATOR PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   CALCULATOR HEADER SECTION
+   ======================================== */
+.section-calculator-header {
+  background-color: var(--section-calculator-header-background-color);
+  color: var(--section-calculator-header-color);
+  padding: var(--section-calculator-header-padding);
+  font-family: var(--section-calculator-header-font-family);
+  font-size: var(--section-calculator-header-size);
+}
+
+/* ========================================
+   CALCULATOR CONTENT SECTION
+   ======================================== */
+.section-calculator-content {
+  background-color: var(--section-calculator-content-background-color);
+  color: var(--section-calculator-content-color);
+  padding: var(--section-calculator-content-padding);
+  font-family: var(--section-calculator-content-font-family);
+  font-size: var(--section-calculator-content-size);
+}
+

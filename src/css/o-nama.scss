@@ -1,0 +1,90 @@
+/* ========================================
+   O NAMA PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   ABOUT US HEADER SECTION
+   ======================================== */
+.section-about-us-header {
+  background-color: var(--section-about-us-header-background-color);
+  color: var(--section-about-us-header-color);
+  padding: var(--section-about-us-header-padding);
+  font-family: var(--section-about-us-header-font-family);
+  font-size: var(--section-about-us-header-size);
+}
+
+/* ========================================
+   SOBRIETY SECTION
+   ======================================== */
+.section-sobriety {
+  background-color: var(--section-sobriety-background-color);
+  color: var(--section-sobriety-color);
+  padding: var(--section-sobriety-padding);
+  font-family: var(--section-sobriety-font-family);
+  font-size: var(--section-sobriety-size);
+}
+
+.sobriety-title {
+  font-family: var(--sobriety-title-font-family);
+  font-size: var(--sobriety-title-size);
+  font-weight: var(--sobriety-title-weight);
+  color: var(--sobriety-title-color);
+}
+
+.sobriety-content {
+  font-family: var(--sobriety-content-font-family);
+  font-size: var(--sobriety-content-size);
+  color: var(--sobriety-content-color);
+}
+
+.sobriety-celebration {
+  font-family: var(--sobriety-celebration-font-family);
+  font-size: var(--sobriety-celebration-size);
+  color: var(--sobriety-celebration-color);
+}
+
+.sobriety-card {
+  background-color: var(--sobriety-card-background-color);
+  padding: var(--sobriety-card-padding);
+  border-radius: var(--sobriety-card-border-radius);
+}
+
+.sobriety-share {
+  font-family: var(--sobriety-share-font-family);
+  font-size: var(--sobriety-share-size);
+  color: var(--sobriety-share-color);
+}
+
+/* ========================================
+   PRAYER SECTION
+   ======================================== */
+.section-prayer {
+  background-color: var(--section-prayer-background-color);
+  color: var(--section-prayer-color);
+  padding: var(--section-prayer-padding);
+  font-family: var(--section-prayer-font-family);
+  font-size: var(--section-prayer-size);
+}
+
+/* ========================================
+   NEWS SECTION
+   ======================================== */
+.section-news {
+  background-color: var(--section-news-background-color);
+  color: var(--section-news-color);
+  padding: var(--section-news-padding);
+  font-family: var(--section-news-font-family);
+  font-size: var(--section-news-size);
+}
+
+/* ========================================
+   LINKS SECTION
+   ======================================== */
+.section-links {
+  background-color: var(--section-links-background-color);
+  color: var(--section-links-color);
+  padding: var(--section-links-padding);
+  font-family: var(--section-links-font-family);
+  font-size: var(--section-links-size);
+}
+

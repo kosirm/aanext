@@ -1,0 +1,48 @@
+/* ========================================
+   HELP PAGE STYLES
+   ======================================== */
+
+/* ========================================
+   HELP HEADER SECTION
+   ======================================== */
+.section-help-header {
+  background-color: var(--section-help-header-background-color);
+  color: var(--section-help-header-color);
+  padding: var(--section-help-header-padding);
+  font-family: var(--section-help-header-font-family);
+  font-size: var(--section-help-header-size);
+}
+
+/* ========================================
+   TITLE SECTION
+   ======================================== */
+.section-title {
+  background-color: var(--section-title-background-color);
+  color: var(--section-title-color);
+  padding: var(--section-title-padding);
+  font-family: var(--section-title-font-family);
+  font-size: var(--section-title-size);
+}
+
+/* ========================================
+   STEP SECTION
+   ======================================== */
+.section-step {
+  background-color: var(--section-step-background-color);
+  color: var(--section-step-color);
+  padding: var(--section-step-padding);
+  font-family: var(--section-step-font-family);
+  font-size: var(--section-step-size);
+}
+
+/* ========================================
+   CONTENT SECTION
+   ======================================== */
+.section-content {
+  background-color: var(--section-content-background-color);
+  color: var(--section-content-color);
+  padding: var(--section-content-padding);
+  font-family: var(--section-content-font-family);
+  font-size: var(--section-content-size);
+}
+

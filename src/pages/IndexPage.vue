@@ -3,13 +3,13 @@
     <!-- Hero Section -->
     <section
       id="hero"
-      class="hero-section mbr-parallax-background"
+      class="hero-section mbr-parallax-background section-index-header"
       style="background-image: url('/assets/images/header.webp');"
       v-touch-swipe.mouse.horizontal="handleSwipe"
     >
-      <div class="mbr-overlay"></div>
+      <div class="index-header-overlay"></div>
       <div class="hero-content q-pa-xl text-white text-center">
-        <h1 class="text-h1 q-mb-md header-title">
+        <h1 class="text-h1 q-mb-md">
           <strong>Anonimni Alkoholičari Hrvatske</strong>
         </h1>
         <p class="text-h4 q-mb-lg">Grupa Prvi Korak Osijek</p>
@@ -769,6 +769,8 @@ const grupeCards = [
 </script>
 
 <style scoped lang="scss">
+@import 'src/css/index.scss';
+
 .index-page {
   padding: 0;
   overflow-x: hidden; // Prevent horizontal scrollbar
@@ -831,17 +833,6 @@ const grupeCards = [
     color: white;
     text-align: center;
     padding: 2rem 1rem;
-
-    .mbr-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.5;
-      background-color: var(--color-primary);
-    }
 
     .hero-content {
       position: relative;

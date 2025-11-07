@@ -414,6 +414,38 @@ run_theme_designer() {
     cd ../../aahrvatska
 }
 
+# Function to parse SCSS and generate clean theme file(s)
+parse_scss_to_theme() {
+    local theme_name="$1"
+
+    if [ -z "$theme_name" ]; then
+        echo "Parsing SCSS files to regenerate ALL theme files"
+        echo "⚠️  WARNING: This will overwrite all existing theme files!"
+        echo "✅ Existing values will be preserved (only comments removed)"
+    else
+        echo "Parsing SCSS files to regenerate theme: $theme_name"
+        echo "⚠️  WARNING: This will overwrite the existing theme file!"
+        echo "✅ Existing values will be preserved (only comments removed)"
+    fi
+
+    echo ""
+    read -p "Continue? (y/N): " confirm
+
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+        cd ../theme-designer
+        if [ -z "$theme_name" ]; then
+            # Generate all themes
+            python generate_theme_from_scss.py
+        else
+            # Generate specific theme
+            python generate_theme_from_scss.py --theme "$theme_name"
+        fi
+        cd ../aahrvatska
+    else
+        echo "Cancelled."
+    fi
+}
+
 # Main script
 check_git_repo
 
@@ -486,6 +518,9 @@ case "$1" in
 "theme")
     run_theme_designer
     ;;
+"parse")
+    parse_scss_to_theme "$2"
+    ;;
 *)
     echo "AA Hrvatska - Work Script"
     echo "========================="
@@ -503,6 +538,8 @@ case "$1" in
     echo ""
     echo "Theme Designer:"
     echo "  theme                         - Open Theme Designer UI"
+    echo "  parse                         - Parse SCSS and regenerate ALL themes (preserves values)"
+    echo "  parse <theme-name>            - Parse SCSS and regenerate specific theme (preserves values)"
     echo ""
     echo "Git Workflow Commands:"
     echo "  start <branch-name>                      - Start a new task branch"
@@ -525,6 +562,8 @@ case "$1" in
     echo ""
     echo "Examples:"
     echo "  w theme                       - Open Theme Designer UI"
+    echo "  w parse                       - Parse SCSS and regenerate ALL themes (preserves values)"
+    echo "  w parse ocean                 - Parse SCSS and regenerate ocean theme only"
     echo "  w q                           - Start dev server (no service worker)"
     echo "  w q -ds                       - Start dev server with service worker (SPA mode)"
     echo "  w q serve-pwa                 - Build and test PWA locally"
